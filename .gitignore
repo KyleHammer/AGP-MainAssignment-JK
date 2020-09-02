@@ -72,3 +72,12 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Mac related meta files
+.DS_Store
+
+#VsCode Specific
+.vscode/*
+
+# Local History for Visual Studio Code
+.history/
