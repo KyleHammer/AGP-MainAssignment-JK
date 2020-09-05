@@ -18,7 +18,8 @@ UAIAgentBrain::UAIAgentBrain()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	Suspicion = 0;
+	Affirmation = 0;
 }
 
 
@@ -26,9 +27,6 @@ UAIAgentBrain::UAIAgentBrain()
 void UAIAgentBrain::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
 
@@ -41,8 +39,8 @@ void UAIAgentBrain::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 }
 
 
-void DebugBrainSphere() 
+void UAIAgentBrain::DebugBrainSphere() 
 {
-	DrawDebugSphere(GetWorld(), GetActorLocation(), 10, 10, FColor::Cyan, false, -1, 0, 100);
+	DrawDebugSphere(GetWorld(), GetOwner()->GetActorLocation(), 600, 50, FColor::Cyan, true, -1, 0, 8);
 }
 

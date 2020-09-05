@@ -17,9 +17,12 @@ UAIVision::UAIVision()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	NormalViewDistance = 20f;
+	NormalViewDistance = 20;
+	NormalViewAngle = 90;
+	FocusedViewDistance = 5;
 
-	// ...
+	PeripheralViewAngle = 190;
+	PeripheralViewDistance = 8;
 }
 
 

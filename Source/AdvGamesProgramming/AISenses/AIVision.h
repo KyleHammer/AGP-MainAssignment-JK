@@ -18,13 +18,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vision")
 	float NormalViewAngle;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vision")
 	float NormalViewDistance;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vision")
 	float FocusedViewDistance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vision")
 	float PeripheralViewAngle;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vision")
 	float PeripheralViewDistance;
 
@@ -36,10 +39,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION()
 	void ConductSearch();
-
-	UFUNCTION()
 	void TraceRayLine();
+	void CreateNormalViewCone();
+	
 
 };
