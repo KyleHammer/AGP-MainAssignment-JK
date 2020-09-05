@@ -4,18 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "AIAgentBrain.generated.h"
+#include "TestStimuli.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ADVGAMESPROGRAMMING_API UAIAgentBrain : public UActorComponent
+class ADVGAMESPROGRAMMING_API UTestStimuli : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UAIAgentBrain();
-
+	UTestStimuli();
 
 protected:
 	// Called when the game starts
@@ -25,7 +24,5 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	virtual void FrontStageMode();
-	virtual void BackStageMode();
 		
 };
