@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "AIManager.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "Perception/AIPerceptionTypes.h"
 #include "HealthComponent.h"
 #include "EnemyCharacter.generated.h"
 
@@ -31,18 +32,35 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere)
+	float CuriositySensitivity;
+	UPROPERTY(EditAnywhere)
+	float ThreatSensitivity;
+
 	UPROPERTY(VisibleAnywhere)
-	float Curiosity;
+	float TotalCuriosity; //Likely between -1 - 2
 	UPROPERTY(VisibleAnywhere)
-	float Threat;
+	float CurrentCuriosity; //Between 0 - 100
+
+	UPROPERTY(VisibleAnywhere)
+	float TotalThreat; //Likely between -1 - 2
+	UPROPERTY(VisibleAnywhere)
+	float CurrentThreat; //Between 0 - 100
 
 	UPROPERTY(VisibleAnywhere)
 	FVector LastKnownPosition;
+	UPROPERTY(VisibleAnywhere)
+	FAIStimulus LatestStimuli;
 
 	UPROPERTY(VisibleAnywhere)
 	float Age;
 	UPROPERTY(VisibleAnywhere)
-	float DistFromStimuli;
+	float LastDistFromStimuli;
+
+	UPROPERTY(EditAnywhere)
+	float MinimumAwarenessDist;
+	UPROPERTY(EditAnywhere)
+	float LatestAge;
 
 public:	
 	// Called every frame
@@ -78,10 +96,19 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
 
+	//Responsible for curiosity
 	void DetermineCuriosity();
-	void DetermineThreat();
+	void CalculateCuriosity();
 
-	void FindDistToStimuli();
+	//Responsible for curiosity
+	void DetermineThreat();
+	void CalculateThreat();
+
+	void IncrementValue();
+	float FindDistance(FVector InitialLocation, FVector EndLocation);
+
+	void FindLastDistToStimuli();
+	float CalculateDistRatioToLastStimuli();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

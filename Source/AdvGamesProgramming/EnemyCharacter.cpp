@@ -3,6 +3,7 @@
 
 #include "EnemyCharacter.h"
 #include "EngineUtils.h"
+#include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -26,17 +27,27 @@ void AEnemyCharacter::BeginPlay()
 	DetectedActor = nullptr;
 	bCanSeeActor = false;
 
+	//LatestStimuli = nullptr;
 	LastKnownPosition = FVector::ZeroVector;
 	Age = 0;
-	DistFromStimuli = 0;
+	LastDistFromStimuli = 0;
+
+	CurrentCuriosity = 0;
+
+	//Should remove later on
+	CuriositySensitivity = 1;
+	ThreatSensitivity = 1;
+	MinimumAwarenessDist = 400;
+	LatestAge = 10;
 }
 
 // Called every frame
 void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	DetermineCuriosity();
 
-	if (CurrentAgentState == AgentState::PATROL)
+	/*if (CurrentAgentState == AgentState::PATROL)
 	{
 		AgentPatrol();
 		if (bCanSeeActor && HealthComponent->HealthPercentageRemaining() >= 0.4f)
@@ -76,7 +87,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 			Path.Empty();
 		}
 	}
-	MoveAlongPath();
+	MoveAlongPath();*/
 }
 
 // Called to bind functionality to input
@@ -110,7 +121,6 @@ void AEnemyCharacter::AgentEngage()
 
 void AEnemyCharacter::AgentEvade()
 {
-	
 	if (bCanSeeActor)
 	{
 		FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
@@ -129,12 +139,14 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		UE_LOG(LogTemp, Warning, TEXT("Player Detected"))
 		DetectedActor = SensedActor;
 		bCanSeeActor = true;
+		LastKnownPosition = Stimulus.StimulusLocation;
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Lost"))
 		bCanSeeActor = false;
-		//LastKnownPosition = Stimulus.StimulusLocation;
+		LatestStimuli = Stimulus;
+		LastKnownPosition = Stimulus.StimulusLocation;
 	}
 }
 
@@ -170,16 +182,72 @@ void AEnemyCharacter::MoveAlongPath()
 
 void AEnemyCharacter::DetermineCuriosity()
 {
+	if (bCanSeeActor) 
+	{
+		//UE_LOG(LogTemp, Display, TEXT(">> EnemyCharacter: PlayerDetected"))
+		CalculateCuriosity();
+		//UE_LOG(LogTemp, Display, TEXT(">> EnemyCharacter: Curiosity at = %f"), CurrentCuriosity)
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Blue, FString::Printf(TEXT(">> EnemyCharacter: Curiosity at = %f"), CurrentCuriosity));
+	} 
+	else 
+	{
+		CurrentCuriosity = 0;
+	}
+
+	//TotalCuriosity = (((CurrentCuriosity * CuriositySensitivity)) * CalculateDistRatioToLastStimuli()) / 100;
+	//UE_LOG(LogTemp, Display, TEXT(">> EnemyCharacter: Total Curiosity at = %s"), TotalCuriosity)
+}
+
+void AEnemyCharacter::CalculateCuriosity()
+{
+	FVector StimuliDiretion = DetectedActor->GetActorLocation() - GetActorLocation();
+	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDiretion.GetSafeNormal(1));
+	
+	//Check  within  peripheral view
+	if (DotResult >= 0.7)
+	{
+		CurrentCuriosity += 0.2;
+
+		float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
+			//Check within focused distance
+	} else {
+		CurrentCuriosity += 0.1;
+	}
+
+
+	//UE_LOG(LogTemp, Display, TEXT(">> EnemyCharacter: Dot product at = %f"), DotResult)
+	return;
+}
+
+void AEnemyCharacter::CalculateThreat()
+{
 
 }
+
 
 void AEnemyCharacter::DetermineThreat() 
 {
 
 }
 
-void AEnemyCharacter::FindDistToStimuli()
+// Summary: Finds the ratio from character's initial distance to its current to the last stimuli source
+//
+float AEnemyCharacter::CalculateDistRatioToLastStimuli()
 {
-	DistFromStimuli = FVector::Dist(LastKnownPosition, GetActorLocation());
+	return (FVector::Dist(LastKnownPosition, GetActorLocation()) / LastDistFromStimuli);
+}
+
+// Summary: Returns the current dist from the player last location detected by the perception module.
+//
+void AEnemyCharacter::FindLastDistToStimuli()
+{
+	LastDistFromStimuli = FVector::Dist(LastKnownPosition, GetActorLocation());
+}
+
+// Summary: Basic function for calculating distance
+//
+float AEnemyCharacter::FindDistance(FVector InitialLocation, FVector EndLocation)
+{
+	return FVector::Dist(InitialLocation, EndLocation);
 }
 
