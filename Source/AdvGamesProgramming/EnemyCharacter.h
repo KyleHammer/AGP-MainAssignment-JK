@@ -16,7 +16,8 @@ enum class AgentState : uint8
 {
 	PATROL,
 	ENGAGE,
-	EVADE
+	EVADE,
+	DEAD
 };
 
 UCLASS()
@@ -65,6 +66,8 @@ public:
 	UFUNCTION()
 	void AgentEvade();
 	UFUNCTION()
+	void AgentDead();
+	UFUNCTION()
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
@@ -78,7 +81,8 @@ public:
 
 private:
 
+	void SetState(AgentState NewState);
 	void MoveAlongPath();
-	void PrintStateChange();
+	void CheckCurrentHealth();
 
 };

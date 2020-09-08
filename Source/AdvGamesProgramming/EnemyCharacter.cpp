@@ -9,7 +9,7 @@ AEnemyCharacter::AEnemyCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	CurrentAgentState = AgentState::PATROL;
+	SetState(AgentState::PATROL);
 	PreviousAgentState = CurrentAgentState;
 
 	PathfindingNodeAccuracy = 100.0f;
@@ -34,21 +34,27 @@ void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	PrintStateChange();
-
 	PreviousAgentState = CurrentAgentState;
 
+	CheckCurrentHealth();
+
+	if(CurrentAgentState == AgentState::DEAD)
+	{
+		AgentDead();
+		return;
+	}
+	
 	if (CurrentAgentState == AgentState::PATROL)
 	{
 		AgentPatrol();
 		if (bCanSeeActor && HealthComponent->HealthPercentageRemaining() >= 0.4f)
 		{
-			CurrentAgentState = AgentState::ENGAGE;
+			SetState(AgentState::ENGAGE);
 			Path.Empty();
 		}
 		else if (bCanSeeActor && HealthComponent->HealthPercentageRemaining() < 0.4f)
 		{
-			CurrentAgentState = AgentState::EVADE;
+			SetState(AgentState::EVADE);
 			Path.Empty();
 		}
 	}
@@ -57,11 +63,11 @@ void AEnemyCharacter::Tick(float DeltaTime)
 		AgentEngage();
 		if (!bCanSeeActor)
 		{
-			CurrentAgentState = AgentState::PATROL;
+			SetState(AgentState::PATROL);
 		}
 		else if (bCanSeeActor && HealthComponent->HealthPercentageRemaining() < 0.4f)
 		{
-			CurrentAgentState = AgentState::EVADE;
+			SetState(AgentState::EVADE);
 			Path.Empty();
 		}
 	}
@@ -70,42 +76,59 @@ void AEnemyCharacter::Tick(float DeltaTime)
 		AgentEvade();
 		if (!bCanSeeActor)
 		{
-			CurrentAgentState = AgentState::PATROL;
+			SetState(AgentState::PATROL);
 		}
 		else if (bCanSeeActor && HealthComponent->HealthPercentageRemaining() >= 0.4f)
 		{
-			CurrentAgentState = AgentState::ENGAGE;
+			SetState(AgentState::ENGAGE);
 			Path.Empty();
 		}
 	}
 	MoveAlongPath();
 }
 
-// Print out a screen message if the enemy state changes
-void AEnemyCharacter::PrintStateChange()
+// Whenever a state is changed, print the new state too
+void AEnemyCharacter::SetState(AgentState NewState)
 {
-	if(PreviousAgentState != CurrentAgentState)
+	CurrentAgentState = NewState;
+
+	FString StateToString;
+	switch (CurrentAgentState)
 	{
-		FString StateToString;
-		switch (CurrentAgentState)
-		{
-		case 0:
-			StateToString = "PATROL";
-			break;
-		case 1:
-			StateToString = "ENGAGE";
-			break;
-		case 2:
-			StateToString = "EVADE";
-			break;
-		default:
-			StateToString = "UNKNOWN";
-			break;
-		}
+	case 0:
+		StateToString = "PATROL";
+		break;
+	case 1:
+		StateToString = "ENGAGE";
+		break;
+	case 2:
+		StateToString = "EVADE";
+		break;
+	case 3:
+		StateToString = "DEAD";
+		break;
+	default:
+		StateToString = "UNKNOWN";
+		break;
+	}
 		
-		// Print new state to the screen
-		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("State switched to " + StateToString));
+	// Print new state to the screen
+	if(GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("State switched to " + StateToString));
+}
+
+// Check of the enemy health is below 0
+void AEnemyCharacter::CheckCurrentHealth()
+{
+	// No need to check health if the enemy is already dead
+	if(CurrentAgentState == AgentState::DEAD)
+	{
+		return;
+	}
+	
+	if(HealthComponent->HealthPercentageRemaining() <= 0.0f)
+	{
+		SetState(AgentState::DEAD);
 	}
 }
 
@@ -141,7 +164,6 @@ void AEnemyCharacter::AgentEngage()
 
 void AEnemyCharacter::AgentEvade()
 {
-	
 	if (bCanSeeActor)
 	{
 		FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
@@ -150,6 +172,20 @@ void AEnemyCharacter::AgentEvade()
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindFurthestNode(DetectedActor->GetActorLocation()));
 		}
+	}
+}
+
+void AEnemyCharacter::AgentDead()
+{
+	// If the last state wasn't dead, perform the following actions
+	// This ensures the following code is only run once
+	if(PreviousAgentState != AgentState::DEAD)
+	{
+		// Remove enemy perception upon their death
+		PerceptionComponent->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyCharacter::SensePlayer);
+		
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("ENEMY HAS DIED"));
 	}
 }
 
