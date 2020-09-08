@@ -10,6 +10,9 @@ AEnemyCharacter::AEnemyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CurrentAgentState = AgentState::PATROL;
+	PreviousAgentState = CurrentAgentState;
+
+	PathfindingNodeAccuracy = 100.0f;
 }
 
 // Called when the game starts or when spawned
@@ -30,6 +33,10 @@ void AEnemyCharacter::BeginPlay()
 void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	PrintStateChange();
+
+	PreviousAgentState = CurrentAgentState;
 
 	if (CurrentAgentState == AgentState::PATROL)
 	{
@@ -73,6 +80,35 @@ void AEnemyCharacter::Tick(float DeltaTime)
 	}
 	MoveAlongPath();
 }
+
+// Print out a screen message if the enemy state changes
+void AEnemyCharacter::PrintStateChange()
+{
+	if(PreviousAgentState != CurrentAgentState)
+	{
+		FString StateToString;
+		switch (CurrentAgentState)
+		{
+		case 0:
+			StateToString = "PATROL";
+			break;
+		case 1:
+			StateToString = "ENGAGE";
+			break;
+		case 2:
+			StateToString = "EVADE";
+			break;
+		default:
+			StateToString = "UNKNOWN";
+			break;
+		}
+		
+		// Print new state to the screen
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("State switched to " + StateToString));
+	}
+}
+
 
 // Called to bind functionality to input
 void AEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -121,13 +157,19 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Detected"))
+		// Print message to the screen
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Detected"));
+		
 		DetectedActor = SensedActor;
 		bCanSeeActor = true;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Lost"))
+		// Print message to the screen
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Lost"));
+		
 		bCanSeeActor = false;
 	}
 }
@@ -137,7 +179,7 @@ void AEnemyCharacter::MoveAlongPath()
 	if (Path.Num() > 0 && Manager != NULL)
 	{
 		//UE_LOG(LogTemp, Display, TEXT("Current Node: %s"), *CurrentNode->GetName())
-		if ((GetActorLocation() - CurrentNode->GetActorLocation()).IsNearlyZero(500.0f))
+		if ((GetActorLocation() - CurrentNode->GetActorLocation()).IsNearlyZero(PathfindingNodeAccuracy))
 		{
 			UE_LOG(LogTemp, Display, TEXT("At Node %s"), *CurrentNode->GetName())
 			CurrentNode = Path.Pop();

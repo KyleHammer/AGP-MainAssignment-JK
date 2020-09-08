@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "NavigationNode.h"
 #include "GameFramework/Character.h"
+#include "Engine/Engine.h"
 #include "AIManager.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "HealthComponent.h"
@@ -47,6 +48,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	AgentState CurrentAgentState;
+
+	AgentState PreviousAgentState;
+	
 	UPROPERTY(VisibleAnywhere)
 	AActor* DetectedActor;
 	UPROPERTY(VisibleAnywhere)
@@ -68,8 +72,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	
+	UPROPERTY(EditAnywhere, meta=(UIMin = "10.0", UIMax = "1000.0", ClampMin = "10.0", ClampMax = "1000.0"))
+	float PathfindingNodeAccuracy;
+
 private:
 
 	void MoveAlongPath();
+	void PrintStateChange();
 
 };
