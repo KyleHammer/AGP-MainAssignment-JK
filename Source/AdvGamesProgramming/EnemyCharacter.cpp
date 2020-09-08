@@ -32,12 +32,7 @@ void AEnemyCharacter::BeginPlay()
 	Age = 0;
 	LastDistFromStimuli = 0;
 
-	CurrentCuriosity = 0;
-
 	//Should remove later on
-	CuriositySensitivity = 1;
-	ThreatSensitivity = 1;
-	MinimumAwarenessDist = 400;
 	LatestAge = 10;
 }
 
@@ -45,7 +40,11 @@ void AEnemyCharacter::BeginPlay()
 void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//Handles related decision values
 	DetermineCuriosity();
+	DetermineThreat();
+	GroundValues();
 
 	/*if (CurrentAgentState == AgentState::PATROL)
 	{
@@ -184,18 +183,18 @@ void AEnemyCharacter::DetermineCuriosity()
 {
 	if (bCanSeeActor) 
 	{
-		//UE_LOG(LogTemp, Display, TEXT(">> EnemyCharacter: PlayerDetected"))
 		CalculateCuriosity();
-		//UE_LOG(LogTemp, Display, TEXT(">> EnemyCharacter: Curiosity at = %f"), CurrentCuriosity)
-		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Blue, FString::Printf(TEXT(">> EnemyCharacter: Curiosity at = %f"), CurrentCuriosity));
+
+		IsCurious = TotalCuriosity > CuriousityThreshold ? true : false;
+
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT(">> EnemyCharacter: Total Curiosity at = %f"), TotalCuriosity));
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::White, FString::Printf(TEXT(">> EnemyCharacter: Is Curious = %s"), IsCurious ? TEXT("True") : TEXT("False")));
 	} 
 	else 
 	{
-		CurrentCuriosity = 0;
+		TotalCuriosity -= 1;
+		IsCurious = false;
 	}
-
-	//TotalCuriosity = (((CurrentCuriosity * CuriositySensitivity)) * CalculateDistRatioToLastStimuli()) / 100;
-	//UE_LOG(LogTemp, Display, TEXT(">> EnemyCharacter: Total Curiosity at = %s"), TotalCuriosity)
 }
 
 void AEnemyCharacter::CalculateCuriosity()
@@ -206,28 +205,81 @@ void AEnemyCharacter::CalculateCuriosity()
 	//Check  within  peripheral view
 	if (DotResult >= 0.7)
 	{
-		CurrentCuriosity += 0.2;
-
+		TotalCuriosity += 0.5 * CuriositySensitivity;
+	} else
+	{ 
+		//Check within focused distance
 		float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
-			//Check within focused distance
-	} else {
-		CurrentCuriosity += 0.1;
+
+		if (Distance < AgentCritialAwarenessDistance)
+		{
+			TotalCuriosity += 0.4 * CuriositySensitivity;
+			return;
+		}
+
+		TotalCuriosity += 0.05 * CuriositySensitivity;
 	}
 
-
-	//UE_LOG(LogTemp, Display, TEXT(">> EnemyCharacter: Dot product at = %f"), DotResult)
 	return;
+}
+
+void AEnemyCharacter::DetermineThreat()
+{
+	if (bCanSeeActor) {
+		CalculateThreat();
+
+		IsThreatened = TotalThreat > ThreatThreshold ? true : false;
+
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, FString::Printf(TEXT(">> EnemyCharacter: Total Threat at = %f"), TotalThreat));
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT(">> EnemyCharacter: Is Threat = %s"), IsThreatened ? TEXT("True") : TEXT("False")));
+	} 
+	else 
+	{
+		TotalThreat -= 1;
+		IsThreatened = false;
+	}
 }
 
 void AEnemyCharacter::CalculateThreat()
 {
+	FVector StimuliDiretion = DetectedActor->GetActorLocation() - GetActorLocation();
+	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDiretion.GetSafeNormal(1));
 
+	if (DotResult >= 0.8)
+	{
+		//Check within focused distance
+		float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
+
+		if (Distance < AgentCritialAwarenessDistance)
+		{
+			TotalCuriosity -= 1;
+			TotalThreat += 0.8;
+			return;
+		}
+
+		TotalThreat += 0.2;
+	}
 }
 
-
-void AEnemyCharacter::DetermineThreat() 
+void AEnemyCharacter::GroundValues()
 {
-
+	if (TotalCuriosity < 0) 
+	{
+		TotalCuriosity = 0;
+	} 
+	else if (TotalCuriosity > 100) 
+	{
+		TotalCuriosity = 100;
+	}
+	
+	if (TotalThreat < 0)
+	{
+		TotalThreat = 0;
+	}
+	else if (TotalThreat > 100)
+	{
+		TotalThreat = 100;
+	}
 }
 
 // Summary: Finds the ratio from character's initial distance to its current to the last stimuli source

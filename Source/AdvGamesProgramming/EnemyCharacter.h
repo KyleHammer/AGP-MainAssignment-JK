@@ -40,12 +40,12 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	float TotalCuriosity; //Likely between -1 - 2
 	UPROPERTY(VisibleAnywhere)
-	float CurrentCuriosity; //Between 0 - 100
+	bool IsCurious;
 
 	UPROPERTY(VisibleAnywhere)
 	float TotalThreat; //Likely between -1 - 2
 	UPROPERTY(VisibleAnywhere)
-	float CurrentThreat; //Between 0 - 100
+	bool IsThreatened;
 
 	UPROPERTY(VisibleAnywhere)
 	FVector LastKnownPosition;
@@ -58,7 +58,11 @@ protected:
 	float LastDistFromStimuli;
 
 	UPROPERTY(EditAnywhere)
-	float MinimumAwarenessDist;
+	float CuriousityThreshold;
+	UPROPERTY(EditAnywhere)
+	float ThreatThreshold;
+	UPROPERTY(EditAnywhere)
+	float AgentCritialAwarenessDistance;
 	UPROPERTY(EditAnywhere)
 	float LatestAge;
 
@@ -104,6 +108,7 @@ public:
 	void DetermineThreat();
 	void CalculateThreat();
 
+	void GroundValues();
 	void IncrementValue();
 	float FindDistance(FVector InitialLocation, FVector EndLocation);
 
