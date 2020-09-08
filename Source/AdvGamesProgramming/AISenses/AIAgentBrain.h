@@ -16,14 +16,6 @@ public:
 	// Sets default values for this component's properties
 	UAIAgentBrain();
 
-	//Driver Values
-	UPROPERTY(EditAnywhere, Category = "Brain")
-	float Suspicion;
-
-	UPROPERTY(EditAnywhere, Category = "Brain")
-	float Affirmation;
-
-
 
 protected:
 	// Called when the game starts
@@ -33,8 +25,4 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void FrontStageMode();
-	void BackStageMode();
-
-	void DebugBrainSphere();
 };

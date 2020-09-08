@@ -17,9 +17,6 @@ UAIAgentBrain::UAIAgentBrain()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	Suspicion = 0;
-	Affirmation = 0;
 }
 
 
@@ -35,12 +32,4 @@ void UAIAgentBrain::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	DebugBrainSphere();
 }
-
-
-void UAIAgentBrain::DebugBrainSphere() 
-{
-	DrawDebugSphere(GetWorld(), GetOwner()->GetActorLocation(), 600, 50, FColor::Cyan, true, -1, 0, 8);
-}
-

@@ -3,6 +3,7 @@
 
 #include "EnemyCharacter.h"
 #include "EngineUtils.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -24,6 +25,10 @@ void AEnemyCharacter::BeginPlay()
 	HealthComponent = FindComponentByClass<UHealthComponent>();
 	DetectedActor = nullptr;
 	bCanSeeActor = false;
+
+	LastKnownPosition = FVector::ZeroVector;
+	Age = 0;
+	DistFromStimuli = 0;
 }
 
 // Called every frame
@@ -129,6 +134,7 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Lost"))
 		bCanSeeActor = false;
+		//LastKnownPosition = Stimulus.StimulusLocation;
 	}
 }
 
@@ -155,5 +161,25 @@ void AEnemyCharacter::MoveAlongPath()
 			SetActorRotation(FaceDirection);
 		}
 	}
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+// RELATED METHODS FOR SENSE ADJUSTMENT
+
+void AEnemyCharacter::DetermineCuriosity()
+{
+
+}
+
+void AEnemyCharacter::DetermineThreat() 
+{
+
+}
+
+void AEnemyCharacter::FindDistToStimuli()
+{
+	DistFromStimuli = FVector::Dist(LastKnownPosition, GetActorLocation());
 }
 

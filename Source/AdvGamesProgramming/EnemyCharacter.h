@@ -31,6 +31,19 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere)
+	float Curiosity;
+	UPROPERTY(VisibleAnywhere)
+	float Threat;
+
+	UPROPERTY(VisibleAnywhere)
+	FVector LastKnownPosition;
+
+	UPROPERTY(VisibleAnywhere)
+	float Age;
+	UPROPERTY(VisibleAnywhere)
+	float DistFromStimuli;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -64,6 +77,11 @@ public:
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
+
+	void DetermineCuriosity();
+	void DetermineThreat();
+
+	void FindDistToStimuli();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

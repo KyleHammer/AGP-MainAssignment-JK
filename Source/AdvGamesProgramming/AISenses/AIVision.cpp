@@ -16,13 +16,6 @@ UAIVision::UAIVision()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	NormalViewDistance = 20;
-	NormalViewAngle = 90;
-	FocusedViewDistance = 5;
-
-	PeripheralViewAngle = 190;
-	PeripheralViewDistance = 8;
 }
 
 
@@ -37,18 +30,6 @@ void UAIVision::BeginPlay()
 void UAIVision::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	TraceRayLine();
-}
-
-void UAIVision::TraceRayLine()
-{
-	FHitResult OutHit;
-
-}
-
-void CreateNormalViewCone()
-{
 
 }
 
