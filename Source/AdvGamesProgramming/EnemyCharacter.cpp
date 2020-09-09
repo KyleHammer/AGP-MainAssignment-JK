@@ -75,6 +75,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 		if (!bCanSeeActor)
 		{
 			SetState(AgentState::PATROL);
+			//SetState(AgentState::CHASE);
 		}
 		else if (bCanSeeActor && HealthComponent->HealthPercentageRemaining() < 0.4f)
 		{
@@ -98,6 +99,11 @@ void AEnemyCharacter::Tick(float DeltaTime)
 	else if (CurrentAgentState == AgentState::STARTLED)
 	{
 		AgentStartled();
+		return;
+	}
+	else if (CurrentAgentState == AgentState::CHASE)
+	{
+		AgentChase();
 		return;
 	}
 	MoveAlongPath();
@@ -125,6 +131,9 @@ void AEnemyCharacter::SetState(AgentState NewState)
 		break;
 	case 4:
 		StateToString = "STARTLED";
+		break;
+	case 5:
+		StateToString = "CHASE";
 		break;
 	default:
 		StateToString = "UNKNOWN";
@@ -234,6 +243,15 @@ void AEnemyCharacter::AgentStartled()
 void AEnemyCharacter::ExitStartled()
 {
 	SetState(AgentState::ENGAGE);
+}
+
+void AEnemyCharacter::AgentChase()
+{
+	if(PreviousAgentState != AgentState::CHASE)
+	{
+		// ACTIONS HERE
+	}
+	// OTHER ACTIONS HERE
 }
 
 void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)

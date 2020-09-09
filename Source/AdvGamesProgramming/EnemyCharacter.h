@@ -19,7 +19,8 @@ enum class AgentState : uint8
 	ENGAGE,
 	EVADE,
 	DEAD,
-	STARTLED
+	STARTLED,
+	CHASE
 };
 
 UCLASS()
@@ -83,6 +84,8 @@ public:
 	UFUNCTION()
 	void ExitStartled();
 	UFUNCTION()
+	void AgentChase();
+	UFUNCTION()
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
@@ -90,6 +93,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	FVector LastSeenLocation;
+	ANavigationNode* LastSeenLocationNode;
 	
 	UPROPERTY(EditAnywhere, meta=(UIMin = "10.0", UIMax = "1000.0", ClampMin = "10.0", ClampMax = "1000.0"))
 	float PathfindingNodeAccuracy;

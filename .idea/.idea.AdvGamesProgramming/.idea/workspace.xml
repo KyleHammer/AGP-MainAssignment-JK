@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b16ccf18-ceb3-4863-89a1-ebd44acdaa71" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.AdvGamesProgramming/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.AdvGamesProgramming/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/EnemyCharacterBlueprint.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/EnemyCharacterBlueprint.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Levels/TestingMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Levels/TestingMap.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" afterDir="false" />
@@ -31,8 +30,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" />
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" />
+        <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" />
       </list>
     </option>
   </component>
@@ -167,7 +166,7 @@
       <workItem from="1599561260249" duration="11000" />
       <workItem from="1599561312367" duration="278000" />
       <workItem from="1599561622045" duration="6959000" />
-      <workItem from="1599606385204" duration="6361000" />
+      <workItem from="1599606385204" duration="9747000" />
     </task>
     <servers />
   </component>
