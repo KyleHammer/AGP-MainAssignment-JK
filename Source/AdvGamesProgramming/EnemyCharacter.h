@@ -48,7 +48,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ThreatThreshold;
 	UPROPERTY(EditAnywhere)
-	float AgentCritialAwarenessDistance;
+	float MinimumAwarenessRadius;
 
 protected:
 	// Called when the game starts or when spawned
@@ -88,18 +88,21 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
 
+	//Primary method for processing sound stimuli
 	void ProcessSoundEvent(FAIStimulus Stimulus);
 
-	//Responsible for curiosity
+	//Responsible for managing the curiosity values
 	void DetermineCuriosity();
 	void CalculateCuriosity();
 
-	//Responsible for curiosity
+	//Responsible for managing the threat values
 	void DetermineThreat();
 	void CalculateThreat();
 
-	void GroundValues();
-	void IncrementValue();
+	//Called to clamp threat and curiosity float values from 0 - 100
+	void ClampValues();
+
+	//Called to determine the distance between two vector locations
 	float FindDistance(FVector InitialLocation, FVector EndLocation);
 
 	// Called to bind functionality to input

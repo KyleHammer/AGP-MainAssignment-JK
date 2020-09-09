@@ -5,6 +5,7 @@
 #include "EngineUtils.h"
 #include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -36,7 +37,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 	//Handles related decision values
 	DetermineCuriosity();
 	DetermineThreat();
-	GroundValues();
+	ClampValues();
 
 	/*if (CurrentAgentState == AgentState::PATROL)
 	{
@@ -201,19 +202,18 @@ void AEnemyCharacter::CalculateCuriosity()
 	if (DotResult >= 0.7)
 	{
 		TotalCuriosity += 0.5 * CuriositySensitivity;
-	} else
-	{ 
-		//Check within focused distance
-		float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
-
-		if (Distance < AgentCritialAwarenessDistance)
-		{
-			TotalCuriosity += 0.4 * CuriositySensitivity;
-			return;
-		}
-
-		TotalCuriosity += 0.05 * CuriositySensitivity;
+		return;
 	}
+	//Check within focused distance
+	float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
+
+	if (Distance < MinimumAwarenessRadius)
+	{
+		TotalCuriosity += 0.4 * CuriositySensitivity;
+		return;
+	}
+
+	TotalCuriosity += 0.05 * CuriositySensitivity;
 
 	return;
 }
@@ -245,7 +245,7 @@ void AEnemyCharacter::CalculateThreat()
 		//Check within focused distance
 		float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
 
-		if (Distance < AgentCritialAwarenessDistance)
+		if (Distance < MinimumAwarenessRadius)
 		{
 			TotalCuriosity -= 1;
 			TotalThreat += 0.8;
@@ -256,25 +256,10 @@ void AEnemyCharacter::CalculateThreat()
 	}
 }
 
-void AEnemyCharacter::GroundValues()
+void AEnemyCharacter::ClampValues()
 {
-	if (TotalCuriosity < 0) 
-	{
-		TotalCuriosity = 0;
-	} 
-	else if (TotalCuriosity > 100) 
-	{
-		TotalCuriosity = 100;
-	}
-	
-	if (TotalThreat < 0)
-	{
-		TotalThreat = 0;
-	}
-	else if (TotalThreat > 100)
-	{
-		TotalThreat = 100;
-	}
+	TotalCuriosity = FMath::Clamp(TotalCuriosity, float(0.0), float(100.0));
+	TotalThreat = FMath::Clamp(TotalThreat, float(0.0), float(100.0));
 }
 
 // Summary: Processes sound events encountered by the agent
