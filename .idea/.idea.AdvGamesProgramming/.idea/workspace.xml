@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b16ccf18-ceb3-4863-89a1-ebd44acdaa71" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.AdvGamesProgramming/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.AdvGamesProgramming/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/EnemyCharacterBlueprint.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/EnemyCharacterBlueprint.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/GunBlueprint.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/GunBlueprint.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Levels/TestingMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Levels/TestingMap.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" afterDir="false" />
@@ -18,11 +16,15 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/PickupRotator.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/HealthComponent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/PickupRotator.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/PlayerCharacter.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/HealthComponent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/PlayerCharacter.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
@@ -164,6 +166,7 @@
       <workItem from="1599561260249" duration="11000" />
       <workItem from="1599561312367" duration="278000" />
       <workItem from="1599561622045" duration="6959000" />
+      <workItem from="1599606385204" duration="3217000" />
     </task>
     <servers />
   </component>

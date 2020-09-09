@@ -17,7 +17,8 @@ enum class AgentState : uint8
 	PATROL,
 	ENGAGE,
 	EVADE,
-	DEAD
+	DEAD,
+	STARTLED
 };
 
 UCLASS()
@@ -56,6 +57,12 @@ public:
 	AActor* DetectedActor;
 	UPROPERTY(VisibleAnywhere)
 	bool bCanSeeActor;
+	UPROPERTY(VisibleAnywhere)
+	bool bPreviouslySeenPlayer;
+	UPROPERTY(VisibleAnywhere)
+	float StartledDelay;
+	UPROPERTY(VisibleAnywhere)
+	float StartledTurnSpeed;
 
 	UHealthComponent* HealthComponent;
 
@@ -67,6 +74,10 @@ public:
 	void AgentEvade();
 	UFUNCTION()
 	void AgentDead();
+	UFUNCTION()
+    void AgentStartled();
+	UFUNCTION()
+	void ExitStartled();
 	UFUNCTION()
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -83,6 +94,6 @@ private:
 
 	void SetState(AgentState NewState);
 	void MoveAlongPath();
-	void CheckCurrentHealth();
+	void CheckHealthForDeath();
 
 };

@@ -3,6 +3,7 @@
 
 #include "EnemyCharacter.h"
 #include "EngineUtils.h"
+#include "TimerManager.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -13,6 +14,9 @@ AEnemyCharacter::AEnemyCharacter()
 	PreviousAgentState = CurrentAgentState;
 
 	PathfindingNodeAccuracy = 100.0f;
+	StartledDelay = 1.0f;
+	StartledTurnSpeed = 550.0f;
+	bPreviouslySeenPlayer = false;
 }
 
 // Called when the game starts or when spawned
@@ -36,7 +40,15 @@ void AEnemyCharacter::Tick(float DeltaTime)
 
 	PreviousAgentState = CurrentAgentState;
 
-	CheckCurrentHealth();
+	CheckHealthForDeath();
+
+	// If the enemy takes damage and hasn't seen the player in the past
+	// switch to the startled state
+	if(!bPreviouslySeenPlayer && HealthComponent->HealthPercentageRemaining() < 1.0f)
+	{
+		bPreviouslySeenPlayer = true;
+		SetState(AgentState::STARTLED);
+	}
 
 	if(CurrentAgentState == AgentState::DEAD)
 	{
@@ -84,6 +96,11 @@ void AEnemyCharacter::Tick(float DeltaTime)
 			Path.Empty();
 		}
 	}
+	else if (CurrentAgentState == AgentState::STARTLED)
+	{
+		AgentStartled();
+		return;
+	}
 	MoveAlongPath();
 }
 
@@ -107,6 +124,9 @@ void AEnemyCharacter::SetState(AgentState NewState)
 	case 3:
 		StateToString = "DEAD";
 		break;
+	case 4:
+		StateToString = "STARTLED";
+		break;
 	default:
 		StateToString = "UNKNOWN";
 		break;
@@ -118,7 +138,7 @@ void AEnemyCharacter::SetState(AgentState NewState)
 }
 
 // Check of the enemy health is below 0
-void AEnemyCharacter::CheckCurrentHealth()
+void AEnemyCharacter::CheckHealthForDeath()
 {
 	// No need to check health if the enemy is already dead
 	if(CurrentAgentState == AgentState::DEAD)
@@ -189,6 +209,32 @@ void AEnemyCharacter::AgentDead()
 	}
 }
 
+void AEnemyCharacter::AgentStartled()
+{
+	// If the last state wasn't startled, perform the following actions
+	// This ensures the following code is only run once
+	if(PreviousAgentState != AgentState::STARTLED)
+	{
+		// Do a little jump to resemble being startled
+		Jump();
+
+		// Freeze the character for a certain time before switching out of startled state
+		FTimerHandle MemberTimerHandle;
+		GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AEnemyCharacter::ExitStartled, StartledDelay, false);
+	}
+
+	// Do a panicked rotation
+	FRotator CurrentActorRotation = GetActorRotation();
+	CurrentActorRotation.Yaw += GetWorld()->GetDeltaSeconds() * StartledTurnSpeed;
+	SetActorRotation(CurrentActorRotation);
+}
+
+// Enter engage state after exiting startled state
+void AEnemyCharacter::ExitStartled()
+{
+	SetState(AgentState::ENGAGE);
+}
+
 void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
@@ -199,6 +245,8 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		
 		DetectedActor = SensedActor;
 		bCanSeeActor = true;
+	
+		bPreviouslySeenPlayer = true;
 	}
 	else
 	{
