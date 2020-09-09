@@ -26,14 +26,6 @@ void AEnemyCharacter::BeginPlay()
 	HealthComponent = FindComponentByClass<UHealthComponent>();
 	DetectedActor = nullptr;
 	bCanSeeActor = false;
-
-	//LatestStimuli = nullptr;
-	LastKnownPosition = FVector::ZeroVector;
-	Age = 0;
-	LastDistFromStimuli = 0;
-
-	//Should remove later on
-	LatestAge = 10;
 }
 
 // Called every frame
@@ -138,14 +130,11 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		UE_LOG(LogTemp, Warning, TEXT("Player Detected"))
 		DetectedActor = SensedActor;
 		bCanSeeActor = true;
-		LastKnownPosition = Stimulus.StimulusLocation;
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Lost"))
 		bCanSeeActor = false;
-		LatestStimuli = Stimulus;
-		LastKnownPosition = Stimulus.StimulusLocation;
 	}
 }
 
@@ -280,20 +269,6 @@ void AEnemyCharacter::GroundValues()
 	{
 		TotalThreat = 100;
 	}
-}
-
-// Summary: Finds the ratio from character's initial distance to its current to the last stimuli source
-//
-float AEnemyCharacter::CalculateDistRatioToLastStimuli()
-{
-	return (FVector::Dist(LastKnownPosition, GetActorLocation()) / LastDistFromStimuli);
-}
-
-// Summary: Returns the current dist from the player last location detected by the perception module.
-//
-void AEnemyCharacter::FindLastDistToStimuli()
-{
-	LastDistFromStimuli = FVector::Dist(LastKnownPosition, GetActorLocation());
 }
 
 // Summary: Basic function for calculating distance

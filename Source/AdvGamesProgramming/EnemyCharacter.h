@@ -34,24 +34,14 @@ public:
 	float ThreatSensitivity;
 
 	UPROPERTY(VisibleAnywhere)
-	float TotalCuriosity; //Likely between -1 - 2
+	float TotalCuriosity; //Likely between 0 - 100
 	UPROPERTY(VisibleAnywhere)
 	bool IsCurious;
 
 	UPROPERTY(VisibleAnywhere)
-	float TotalThreat; //Likely between -1 - 2
+	float TotalThreat; //Likely between 0 - 100
 	UPROPERTY(VisibleAnywhere)
 	bool IsThreatened;
-
-	UPROPERTY(VisibleAnywhere)
-	FVector LastKnownPosition;
-	UPROPERTY(VisibleAnywhere)
-	FAIStimulus LatestStimuli;
-
-	UPROPERTY(VisibleAnywhere)
-	float Age;
-	UPROPERTY(VisibleAnywhere)
-	float LastDistFromStimuli;
 
 	UPROPERTY(EditAnywhere)
 	float CuriousityThreshold;
@@ -59,8 +49,6 @@ public:
 	float ThreatThreshold;
 	UPROPERTY(EditAnywhere)
 	float AgentCritialAwarenessDistance;
-	UPROPERTY(EditAnywhere)
-	float LatestAge;
 
 protected:
 	// Called when the game starts or when spawned
@@ -111,9 +99,6 @@ public:
 	void GroundValues();
 	void IncrementValue();
 	float FindDistance(FVector InitialLocation, FVector EndLocation);
-
-	void FindLastDistToStimuli();
-	float CalculateDistRatioToLastStimuli();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
