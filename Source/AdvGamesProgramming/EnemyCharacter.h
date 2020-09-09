@@ -88,6 +88,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
 
+	void ProcessSoundEvent(FAIStimulus Stimulus);
+
 	//Responsible for curiosity
 	void DetermineCuriosity();
 	void CalculateCuriosity();

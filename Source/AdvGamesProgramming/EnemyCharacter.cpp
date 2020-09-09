@@ -130,6 +130,13 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		UE_LOG(LogTemp, Warning, TEXT("Player Detected"))
 		DetectedActor = SensedActor;
 		bCanSeeActor = true;
+
+		ProcessSoundEvent(Stimulus);
+
+		if (Stimulus.Tag.ToString() == "Player")
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT(">> EnemyCharacter: Saw Player")));
+		}
 	}
 	else
 	{
@@ -162,7 +169,6 @@ void AEnemyCharacter::MoveAlongPath()
 		}
 	}
 }
-
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -268,6 +274,20 @@ void AEnemyCharacter::GroundValues()
 	else if (TotalThreat > 100)
 	{
 		TotalThreat = 100;
+	}
+}
+
+// Summary: Processes sound events encountered by the agent
+//
+void AEnemyCharacter::ProcessSoundEvent(FAIStimulus Stimulus)
+{
+	if (Stimulus.Tag.ToString() == "Gun")
+	{
+		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound is a gun"))
+		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound location at x:%f, y:%f"), Stimulus.StimulusLocation.X, Stimulus.StimulusLocation.Y)
+
+		TotalThreat += 70;
+		TotalCuriosity += 30;
 	}
 }
 
