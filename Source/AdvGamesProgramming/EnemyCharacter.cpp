@@ -3,7 +3,6 @@
 
 #include "EnemyCharacter.h"
 #include "EngineUtils.h"
-#include "TimerManager.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -206,6 +205,8 @@ void AEnemyCharacter::AgentDead()
 		
 		if(GEngine)
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("ENEMY HAS DIED"));
+
+		PlayDeathAnimation();
 	}
 }
 

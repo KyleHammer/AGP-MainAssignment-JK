@@ -9,6 +9,7 @@
 #include "AIManager.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "HealthComponent.h"
+#include "TimerManager.h"
 #include "EnemyCharacter.generated.h"
 
 UENUM()
@@ -65,6 +66,9 @@ public:
 	float StartledTurnSpeed;
 
 	UHealthComponent* HealthComponent;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Animation")
+	void PlayDeathAnimation();
 
 	UFUNCTION()
 	void AgentPatrol();
