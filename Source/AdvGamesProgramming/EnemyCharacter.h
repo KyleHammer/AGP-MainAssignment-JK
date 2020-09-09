@@ -28,10 +28,6 @@ public:
 	// Sets default values for this character's properties
 	AEnemyCharacter();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	UPROPERTY(EditAnywhere)
 	float CuriositySensitivity;
 	UPROPERTY(EditAnywhere)
@@ -65,6 +61,10 @@ protected:
 	float AgentCritialAwarenessDistance;
 	UPROPERTY(EditAnywhere)
 	float LatestAge;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 public:	
 	// Called every frame

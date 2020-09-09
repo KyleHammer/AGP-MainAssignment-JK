@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "AdvGamesProgramming/EnemyCharacter.h"
 #include "AIVision.generated.h"
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADVGAMESPROGRAMMING_API UAIVision : public UActorComponent
@@ -31,6 +31,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Vision")
 	float PeripheralViewDistance;
 
+	UPROPERTY(VisibleAnywhere)
+	AEnemyCharacter* EnemyCharacterComponent;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -42,6 +45,23 @@ public:
 	void ConductSearch();
 	void TraceRayLine();
 	void CreateNormalViewCone();
-	
+
+	//Responsible for curiosity
+	UFUNCTION()
+	void DetermineCuriosity();
+	void CalculateCuriosity();
+
+	//Responsible for curiosity
+	UFUNCTION()
+	void DetermineThreat();
+	void CalculateThreat();
+
+	UFUNCTION()
+	void GroundValues();
+	void IncrementValue();
+	float FindDistance(FVector InitialLocation, FVector EndLocation);
+
+	void FindLastDistToStimuli();
+	float CalculateDistRatioToLastStimuli();
 
 };
