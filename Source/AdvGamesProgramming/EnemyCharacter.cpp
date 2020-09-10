@@ -19,6 +19,7 @@ AEnemyCharacter::AEnemyCharacter()
 	// Bool setup for states
 	bPreviouslySeenPlayer = false;
 	bIsDead = false;
+	bRunningInvestigateAnimation = false;
 	ResetStuckTimer();
 }
 
@@ -117,6 +118,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 	}
 	else if (CurrentAgentState == AgentState::INVESTIGATE)
 	{
+		AgentInvestigate();
 		return;
 	}
 	else if (CurrentAgentState == AgentState::RETRACESTEPS)
@@ -314,7 +316,7 @@ void AEnemyCharacter::AgentChase()
 		
 		if(FVector::Distance(GetActorLocation(), LastSeenLocation) < 100.0f)
 		{
-			SetState(AgentState::RETRACESTEPS);
+			SetState(AgentState::INVESTIGATE);
 		}
 	}
 
@@ -337,6 +339,18 @@ void AEnemyCharacter::AgentEngagePivot()
 		SetState(AgentState::CHASE);
 	}
 	
+}
+
+void AEnemyCharacter::AgentInvestigate()
+{
+	if(!bRunningInvestigateAnimation)
+	{
+		bRunningInvestigateAnimation = true;
+		PlayInvestigateAnimation();
+	}
+
+	// This state also transitions to AgentState::RETRACESTEPS if the animation finishes
+	// or to AgentState::ENGAGEPIVOT if the player is found
 }
 
 void AEnemyCharacter::AgentRetraceSteps()

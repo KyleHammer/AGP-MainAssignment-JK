@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b16ccf18-ceb3-4863-89a1-ebd44acdaa71" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.AdvGamesProgramming/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.AdvGamesProgramming/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/EnemyCharacterBlueprint.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/EnemyCharacterBlueprint.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Levels/TestingMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Levels/TestingMap.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" afterDir="false" />
@@ -16,8 +17,6 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/PickupRotator.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/HealthComponent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/PickupRotator.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -26,14 +25,17 @@
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/HealthComponent.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/PlayerCharacter.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/PickupRotator.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../../../Program Files/Epic Games/UE_4.24/Engine/Source/Runtime/Engine/Classes/GameFramework/Character.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.h" />
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.cpp" />
-        <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" />
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" />
+        <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" />
       </list>
     </option>
   </component>

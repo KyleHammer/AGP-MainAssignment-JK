@@ -54,17 +54,19 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UAIPerceptionComponent* PerceptionComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	AgentState CurrentAgentState;
 	
 	UPROPERTY(VisibleAnywhere)
 	AActor* DetectedActor;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bCanSeeActor;
 	UPROPERTY(VisibleAnywhere)
 	bool bPreviouslySeenPlayer;
 	UPROPERTY(VisibleAnywhere)
 	bool bIsDead;
+	UPROPERTY(VisibleAnywhere)
+	bool bRunningInvestigateAnimation;
 	UPROPERTY(VisibleAnywhere)
 	float StartledDelay;
 	UPROPERTY(VisibleAnywhere)
@@ -74,6 +76,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Animation")
 	void PlayDeathAnimation();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Animation")
+    void PlayInvestigateAnimation();
 
 	UFUNCTION()
 	void AgentPatrol();
@@ -92,6 +96,8 @@ public:
 	UFUNCTION()
     void AgentEngagePivot();
 	UFUNCTION()
+    void AgentInvestigate();
+	UFUNCTION()
     void AgentRetraceSteps();
 	UFUNCTION()
     void AgentMoveToClosestNode();
@@ -108,6 +114,9 @@ public:
 	UPROPERTY(EditAnywhere, meta=(UIMin = "10.0", UIMax = "1000.0", ClampMin = "10.0", ClampMax = "1000.0"))
 	float PathfindingNodeAccuracy;
 
+	UFUNCTION(BlueprintCallable)
+	void SetState(AgentState NewState);
+
 private:
 
 	FVector LastSeenLocation;
@@ -116,7 +125,6 @@ private:
 
 	float StuckTimer;
 	
-	void SetState(AgentState NewState);
 	void MoveAlongPath();
 	void CheckHealthForDeath();
 	void EvadeAtLowHealth();
