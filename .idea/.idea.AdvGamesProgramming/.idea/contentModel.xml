@@ -41113,6 +41113,8 @@
           <e p="AdvGamesProgramming.h" t="Include" />
           <e p="AdvGamesProgrammingGameModeBase.cpp" t="Include" />
           <e p="AdvGamesProgrammingGameModeBase.h" t="Include" />
+          <e p="AEnemyRaytrace.cpp" t="Include" />
+          <e p="AEnemyRaytrace.h" t="Include" />
           <e p="AIManager.cpp" t="Include" />
           <e p="AIManager.h" t="Include" />
           <e p="EnemyCharacter.cpp" t="Include" />

@@ -15,11 +15,13 @@ AEnemyCharacter::AEnemyCharacter()
 	PathfindingNodeAccuracy = 100.0f;
 	StartledDelay = 1.0f;
 	StartledTurnSpeed = 550.0f;
+	InvestigationDelay = 3.0f;
+	InvestigateTurnSpeed = 250.0f;
 
 	// Bool setup for states
 	bPreviouslySeenPlayer = false;
 	bIsDead = false;
-	bRunningInvestigateAnimation = false;
+	bStartingInvestigation = false;
 	ResetStuckTimer();
 }
 
@@ -343,14 +345,31 @@ void AEnemyCharacter::AgentEngagePivot()
 
 void AEnemyCharacter::AgentInvestigate()
 {
-	if(!bRunningInvestigateAnimation)
+	if(!bStartingInvestigation)
 	{
-		bRunningInvestigateAnimation = true;
-		PlayInvestigateAnimation();
+		// Freeze the character for a certain time before switching out of startled state
+		FTimerHandle MemberTimerHandle;
+		GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AEnemyCharacter::ExitInvestigation, InvestigationDelay, true);
+
+		bStartingInvestigation = true;
 	}
 
-	// This state also transitions to AgentState::RETRACESTEPS if the animation finishes
-	// or to AgentState::ENGAGEPIVOT if the player is found
+	if(bCanSeeActor)
+	{
+		SetState(AgentState::ENGAGEPIVOT);
+	}
+
+	FRotator CurrentActorRotation = GetActorRotation();
+	CurrentActorRotation.Yaw += GetWorld()->GetDeltaSeconds() * InvestigateTurnSpeed;
+	SetActorRotation(CurrentActorRotation);
+}
+
+void AEnemyCharacter::ExitInvestigation()
+{
+	if(CurrentAgentState == AgentState::INVESTIGATE)
+	{
+		SetState(AgentState::RETRACESTEPS);
+	}
 }
 
 void AEnemyCharacter::AgentRetraceSteps()

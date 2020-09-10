@@ -59,25 +59,13 @@ public:
 	
 	UPROPERTY(VisibleAnywhere)
 	AActor* DetectedActor;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere)
 	bool bCanSeeActor;
-	UPROPERTY(VisibleAnywhere)
-	bool bPreviouslySeenPlayer;
-	UPROPERTY(VisibleAnywhere)
-	bool bIsDead;
-	UPROPERTY(VisibleAnywhere)
-	bool bRunningInvestigateAnimation;
-	UPROPERTY(VisibleAnywhere)
-	float StartledDelay;
-	UPROPERTY(VisibleAnywhere)
-	float StartledTurnSpeed;
 
 	UHealthComponent* HealthComponent;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Animation")
 	void PlayDeathAnimation();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Animation")
-    void PlayInvestigateAnimation();
 
 	UFUNCTION()
 	void AgentPatrol();
@@ -89,7 +77,6 @@ public:
 	void AgentDead();
 	UFUNCTION()
     void AgentStartled();
-	UFUNCTION()
 	void ExitStartled();
 	UFUNCTION()
 	void AgentChase();
@@ -97,6 +84,7 @@ public:
     void AgentEngagePivot();
 	UFUNCTION()
     void AgentInvestigate();
+	void ExitInvestigation();
 	UFUNCTION()
     void AgentRetraceSteps();
 	UFUNCTION()
@@ -123,6 +111,14 @@ private:
 	FVector LocationBeforeChasing;
 	FVector LastFrameEnemyLocation;
 
+	bool bPreviouslySeenPlayer;
+	bool bIsDead;
+	bool bStartingInvestigation;
+	
+	float StartledDelay;
+	float StartledTurnSpeed;
+	float InvestigationDelay;
+	float InvestigateTurnSpeed;
 	float StuckTimer;
 	
 	void MoveAlongPath();
