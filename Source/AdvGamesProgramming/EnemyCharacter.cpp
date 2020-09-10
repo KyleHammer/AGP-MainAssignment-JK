@@ -156,34 +156,34 @@ void AEnemyCharacter::SetState(AgentState NewState)
 	FString StateToString;
 	switch (CurrentAgentState)
 	{
-	case 0:
+	case AgentState(0):
 		StateToString = "PATROL";
 		break;
-	case 1:
+	case AgentState(1):
 		StateToString = "ENGAGE";
 		break;
-	case 2:
+	case AgentState(2):
 		StateToString = "EVADE";
 		break;
-	case 3:
+	case AgentState(3):
 		StateToString = "DEAD";
 		break;
-	case 4:
+	case AgentState(4):
 		StateToString = "STARTLED";
 		break;
-	case 5:
+	case AgentState(5):
 		StateToString = "CHASE";
 		break;
-	case 6:
+	case AgentState(6):
 		StateToString = "ENGAGEPIVOT";
 		break;
-	case 7:
+	case AgentState(7):
 		StateToString = "INVESTIGATE";
 		break;
-	case 8:
+	case AgentState(8):
 		StateToString = "RETRACESTEPS";
 		break;
-	case 9:
+	case AgentState(9):
 		StateToString = "MOVETOCLOSESTNODE";
 		break;
 	default:
@@ -194,6 +194,8 @@ void AEnemyCharacter::SetState(AgentState NewState)
 	// Print new state to the screen
 	if(GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("State switched to " + StateToString));
+
+	UE_LOG(LogTemp, Display, TEXT(">> State switched to %s"), *StateToString);
 }
 
 // Called to bind functionality to input
@@ -220,6 +222,7 @@ void AEnemyCharacter::AgentEngage()
 		LastSeenLocation = DetectedActor->GetActorLocation();
 		FVector DirectionToTarget = LastSeenLocation - GetActorLocation();
 		FireIfThreatened(DirectionToTarget);
+		
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindNearestNode(DetectedActor->GetActorLocation()));
@@ -232,8 +235,8 @@ void AEnemyCharacter::AgentEvade()
 {
 	if (bCanSeeActor)
 	{
-		FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
-		FireIfThreatened(DirectionToTarget);
+		//FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
+		//FireIfThreatened(DirectionToTarget);
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindFurthestNode(DetectedActor->GetActorLocation()));
@@ -429,15 +432,23 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Detected"));
-		
 		DetectedActor = SensedActor;
-		bCanSeeActor = true;
 
-		ProcessSoundEvent(Stimulus);
-	
-		bPreviouslySeenPlayer = true;
+		//Checks if stimulus contains tag gun
+		if(Stimulus.Tag.ToString() == "Gun")
+		{
+			UE_LOG(LogTemp, Display, TEXT("Stimulus: %s"), Stimulus.Tag.ToString().Contains("Gun") ? TEXT("True") : TEXT("False"));
+			ProcessSoundEvent(Stimulus);
+		}
+		else
+		{
+			if(GEngine) {
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Seen"));
+			}
+			
+			bCanSeeActor = true;
+			bPreviouslySeenPlayer = true;
+		}
 	}
 	else
 	{
@@ -540,6 +551,9 @@ void AEnemyCharacter::InvestigateOnDamage()
 //Called to run determination and calculation of curiosity
 void AEnemyCharacter::DetermineCuriosity()
 {
+	if (DetectedActor == nullptr)
+		return;
+
 	if (bCanSeeActor)
 	{
 		CalculateCuriosity();
@@ -562,7 +576,10 @@ void AEnemyCharacter::CalculateCuriosity()
 	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
 
 	// Displays the dot product on screen (1 = Forward,  -1 = Back)
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("Dot Product: %f"),DotResult));
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("Dot Product: %f"), DotResult));
+
+	if (DotResult <= 0)
+		return;
 
 	// Check within peripheral view
 	if (DotResult >= 0.7)
@@ -588,6 +605,9 @@ void AEnemyCharacter::CalculateCuriosity()
 //Called to determine threat
 void AEnemyCharacter::DetermineThreat()
 {
+	if (DetectedActor == nullptr) 
+		return;
+
 	if (bCanSeeActor)
 	{
 		CalculateThreat();
@@ -610,6 +630,9 @@ void AEnemyCharacter::CalculateThreat()
 {
 	FVector StimuliDirection = DetectedActor->GetActorLocation() - GetActorLocation();
 	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
+	
+	if (DotResult <= 0)
+		return;
 
 	// Check within focused sight
 	if (DotResult >= 0.8)
@@ -650,7 +673,7 @@ void AEnemyCharacter::ProcessSoundEvent(FAIStimulus Stimulus)
 
 void AEnemyCharacter::FireIfThreatened(FVector DirectionToTarget)
 {
-	if(IsThreatened)
+	if(IsThreatened && bCanSeeActor)
 	{
 		Fire(DirectionToTarget);
 	}
