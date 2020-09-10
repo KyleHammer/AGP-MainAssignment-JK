@@ -156,34 +156,34 @@ void AEnemyCharacter::SetState(AgentState NewState)
 	FString StateToString;
 	switch (CurrentAgentState)
 	{
-	case 0:
+	case AgentState(0):
 		StateToString = "PATROL";
 		break;
-	case 1:
+	case AgentState(1):
 		StateToString = "ENGAGE";
 		break;
-	case 2:
+	case AgentState(2):
 		StateToString = "EVADE";
 		break;
-	case 3:
+	case AgentState(3):
 		StateToString = "DEAD";
 		break;
-	case 4:
+	case AgentState(4):
 		StateToString = "STARTLED";
 		break;
-	case 5:
+	case AgentState(5):
 		StateToString = "CHASE";
 		break;
-	case 6:
+	case AgentState(6):
 		StateToString = "ENGAGEPIVOT";
 		break;
-	case 7:
+	case AgentState(7):
 		StateToString = "INVESTIGATE";
 		break;
-	case 8:
+	case AgentState(8):
 		StateToString = "RETRACESTEPS";
 		break;
-	case 9:
+	case AgentState(9):
 		StateToString = "MOVETOCLOSESTNODE";
 		break;
 	default:
@@ -429,9 +429,10 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Detected"));
-		
+		if(GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Detected"));
+		}
+
 		DetectedActor = SensedActor;
 		bCanSeeActor = true;
 
@@ -562,7 +563,10 @@ void AEnemyCharacter::CalculateCuriosity()
 	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
 
 	// Displays the dot product on screen (1 = Forward,  -1 = Back)
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("Dot Product: %f"),DotResult));
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("Dot Product: %f"), DotResult));
+
+	if (DotResult <= 0)
+		return;
 
 	// Check within peripheral view
 	if (DotResult >= 0.7)
@@ -610,6 +614,9 @@ void AEnemyCharacter::CalculateThreat()
 {
 	FVector StimuliDirection = DetectedActor->GetActorLocation() - GetActorLocation();
 	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
+	
+	if (DotResult <= 0)
+		return;
 
 	// Check within focused sight
 	if (DotResult >= 0.8)
