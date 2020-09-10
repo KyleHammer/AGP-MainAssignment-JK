@@ -5,6 +5,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
+#include "Perception/AISense_Hearing.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()

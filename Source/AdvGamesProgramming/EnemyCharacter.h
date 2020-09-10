@@ -8,6 +8,7 @@
 #include "Engine/Engine.h"
 #include "AIManager.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "Perception/AIPerceptionTypes.h"
 #include "HealthComponent.h"
 #include "TimerManager.h"
 #include "EnemyCharacter.generated.h"
@@ -35,6 +36,34 @@ class ADVGAMESPROGRAMMING_API AEnemyCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AEnemyCharacter();
+
+	//Sensitivity values
+	UPROPERTY(EditAnywhere)
+	float CuriositySensitivity;
+	UPROPERTY(EditAnywhere)
+	float ThreatSensitivity;
+
+	//Curiosity metric
+	UPROPERTY(VisibleAnywhere)
+	float TotalCuriosity; //Likely between 0 - 100
+	UPROPERTY(VisibleAnywhere)
+	bool IsCurious;
+
+	//Threat metric
+	UPROPERTY(VisibleAnywhere)
+	float TotalThreat; //Likely between 0 - 100
+	UPROPERTY(VisibleAnywhere)
+	bool IsThreatened;
+
+	//Threshold values for the metric bool variables
+	UPROPERTY(EditAnywhere)
+	float CuriousityThreshold;
+	UPROPERTY(EditAnywhere)
+	float ThreatThreshold;
+
+	//Minimum focus radius
+	UPROPERTY(EditAnywhere)
+	float MinimumFocusRadius;
 
 protected:
 	// Called when the game starts or when spawned
@@ -93,6 +122,23 @@ public:
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
+
+	//Primary method for processing sound stimuli
+	void ProcessSoundEvent(FAIStimulus Stimulus);
+
+	//Responsible for managing the curiosity values
+	void DetermineCuriosity();
+	void CalculateCuriosity();
+
+	//Responsible for managing the threat values
+	void DetermineThreat();
+	void CalculateThreat();
+
+	//Called to clamp threat and curiosity float values from 0 - 100
+	void ClampValues();
+
+	//Called to determine the distance between two vector locations
+	float FindDistance(FVector InitialLocation, FVector EndLocation);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
