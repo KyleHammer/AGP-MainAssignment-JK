@@ -10,12 +10,14 @@ AEnemyCharacter::AEnemyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	SetState(AgentState::PATROL);
-	PreviousAgentState = CurrentAgentState;
 
 	PathfindingNodeAccuracy = 100.0f;
 	StartledDelay = 1.0f;
 	StartledTurnSpeed = 550.0f;
+
+	// Bool setup for states
 	bPreviouslySeenPlayer = false;
+	bIsDead = false;
 }
 
 // Called when the game starts or when spawned
@@ -37,15 +39,12 @@ void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	PreviousAgentState = CurrentAgentState;
-
 	CheckHealthForDeath();
 
 	// If the enemy takes damage and hasn't seen the player in the past
 	// switch to the startled state
 	if(!bPreviouslySeenPlayer && HealthComponent->HealthPercentageRemaining() < 1.0f)
 	{
-		bPreviouslySeenPlayer = true;
 		SetState(AgentState::STARTLED);
 	}
 
@@ -74,8 +73,8 @@ void AEnemyCharacter::Tick(float DeltaTime)
 		AgentEngage();
 		if (!bCanSeeActor)
 		{
-			SetState(AgentState::PATROL);
-			//SetState(AgentState::CHASE);
+			//SetState(AgentState::PATROL);
+			SetState(AgentState::CHASE);
 		}
 		else if (bCanSeeActor && HealthComponent->HealthPercentageRemaining() < 0.4f)
 		{
@@ -106,6 +105,11 @@ void AEnemyCharacter::Tick(float DeltaTime)
 		AgentChase();
 		return;
 	}
+	else if (CurrentAgentState == AgentState::ENGAGEPIVOT)
+	{
+		AgentEngagePivot();
+		return;
+	}
 	MoveAlongPath();
 }
 
@@ -134,6 +138,9 @@ void AEnemyCharacter::SetState(AgentState NewState)
 		break;
 	case 5:
 		StateToString = "CHASE";
+		break;
+	case 6:
+		StateToString = "ENGAGEPIVOT";
 		break;
 	default:
 		StateToString = "UNKNOWN";
@@ -180,7 +187,8 @@ void AEnemyCharacter::AgentEngage()
 {
 	if (bCanSeeActor)
 	{
-		FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
+		LastSeenLocation = DetectedActor->GetActorLocation();
+		FVector DirectionToTarget = LastSeenLocation - GetActorLocation();
 		Fire(DirectionToTarget);
 		if (Path.Num() == 0)
 		{
@@ -205,10 +213,11 @@ void AEnemyCharacter::AgentEvade()
 
 void AEnemyCharacter::AgentDead()
 {
-	// If the last state wasn't dead, perform the following actions
-	// This ensures the following code is only run once
-	if(PreviousAgentState != AgentState::DEAD)
+	// Death check. This ensures the following code is only run once
+	if(!bIsDead)
 	{
+		bIsDead = true;
+		
 		// Remove enemy perception upon their death
 		PerceptionComponent->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyCharacter::SensePlayer);
 		
@@ -221,10 +230,12 @@ void AEnemyCharacter::AgentDead()
 
 void AEnemyCharacter::AgentStartled()
 {
-	// If the last state wasn't startled, perform the following actions
-	// This ensures the following code is only run once
-	if(PreviousAgentState != AgentState::STARTLED)
+	// If the enemy has not seen the player in the past, the following startled behaviour occurs
+	if(!bPreviouslySeenPlayer)
 	{
+		// The enemy now identifies the player to be seen
+		bPreviouslySeenPlayer = true;
+		
 		// Do a little jump to resemble being startled
 		Jump();
 
@@ -247,12 +258,46 @@ void AEnemyCharacter::ExitStartled()
 
 void AEnemyCharacter::AgentChase()
 {
-	if(PreviousAgentState != AgentState::CHASE)
+	if(bCanSeeActor)
 	{
-		// ACTIONS HERE
+		SetState(AgentState::ENGAGEPIVOT);
 	}
-	// OTHER ACTIONS HERE
+	else
+	{
+		// Find the direction of the player's last seen location and move towards it
+		FVector WorldDirection = LastSeenLocation - GetActorLocation();
+		WorldDirection.Normalize();
+		AddMovementInput(WorldDirection, 1.0f);
+
+		//Get the AI to face in the direction of travel.
+		FRotator FaceDirection = WorldDirection.ToOrientationRotator();
+		FaceDirection.Roll = 0.f;
+		FaceDirection.Pitch = 0.f;
+		SetActorRotation(FaceDirection);
+
+		if(FVector::Distance(GetActorLocation(), LastSeenLocation) < 100.0f)
+		{
+			SetState(AgentState::PATROL);
+		}
+	}
+	
 }
+
+void AEnemyCharacter::AgentEngagePivot()
+{
+	if(bCanSeeActor)
+	{
+		LastSeenLocation = DetectedActor->GetActorLocation();
+		FVector DirectionToTarget = LastSeenLocation - GetActorLocation();
+		Fire(DirectionToTarget);
+	}
+	else
+	{
+		SetState(AgentState::CHASE);
+	}
+	
+}
+
 
 void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {

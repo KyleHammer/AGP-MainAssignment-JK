@@ -20,7 +20,8 @@ enum class AgentState : uint8
 	EVADE,
 	DEAD,
 	STARTLED,
-	CHASE
+	CHASE,
+	ENGAGEPIVOT
 };
 
 UCLASS()
@@ -52,8 +53,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	AgentState CurrentAgentState;
-
-	AgentState PreviousAgentState;
 	
 	UPROPERTY(VisibleAnywhere)
 	AActor* DetectedActor;
@@ -61,6 +60,8 @@ public:
 	bool bCanSeeActor;
 	UPROPERTY(VisibleAnywhere)
 	bool bPreviouslySeenPlayer;
+	UPROPERTY(VisibleAnywhere)
+	bool bIsDead;
 	UPROPERTY(VisibleAnywhere)
 	float StartledDelay;
 	UPROPERTY(VisibleAnywhere)
@@ -85,6 +86,8 @@ public:
 	void ExitStartled();
 	UFUNCTION()
 	void AgentChase();
+	UFUNCTION()
+    void AgentEngagePivot();
 	UFUNCTION()
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
