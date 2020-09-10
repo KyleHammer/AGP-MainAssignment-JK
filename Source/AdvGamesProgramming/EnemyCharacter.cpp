@@ -4,6 +4,9 @@
 #include "EnemyCharacter.h"
 #include <string>
 #include "EngineUtils.h"
+#include "Engine/Engine.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -44,6 +47,11 @@ void AEnemyCharacter::BeginPlay()
 void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//Handles related decision values
+	DetermineCuriosity();
+	DetermineThreat();
+	ClampValues();
 
 	CheckHealthForDeath();
 
@@ -426,6 +434,8 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		
 		DetectedActor = SensedActor;
 		bCanSeeActor = true;
+
+		ProcessSoundEvent(Stimulus);
 	
 		bPreviouslySeenPlayer = true;
 	}
@@ -437,6 +447,7 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		bCanSeeActor = false;
 	}
 }
+
 
 void AEnemyCharacter::MoveAlongPath()
 {
@@ -517,3 +528,118 @@ void AEnemyCharacter::InvestigateOnDamage()
 	}
 	LastFrameHealth = HealthComponent->CurrentHealth;
 }
+/////////////////////////////////////////////////////////////////////////////
+// RELATED METHODS FOR SENSE ADJUSTMENT
+
+
+//Called to run determination and calculation of curiosity
+void AEnemyCharacter::DetermineCuriosity()
+{
+	if (bCanSeeActor)
+	{
+		CalculateCuriosity();
+		IsCurious = TotalCuriosity > CuriousityThreshold ? true : false;
+
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT(">> EnemyCharacter: Total Curiosity at = %f"), TotalCuriosity));
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::White, FString::Printf(TEXT(">> EnemyCharacter: Is Curious = %s"), IsCurious ? TEXT("True") : TEXT("False")));
+	}
+	else
+	{
+		TotalCuriosity -= 1;
+		IsCurious = false;
+	}
+}
+
+// Calculates the curiosity metric for the AI
+void AEnemyCharacter::CalculateCuriosity()
+{
+	FVector StimuliDirection = DetectedActor->GetActorLocation() - GetActorLocation();
+	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
+
+	// Displays the dot product on screen (1 = Forward,  -1 = Back)
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("Dot Product: %f"),DotResult));
+
+	// Check within peripheral view
+	if (DotResult >= 0.7)
+	{
+		TotalCuriosity += 0.5 * CuriositySensitivity;
+		return;
+	}
+
+	// Check within focus distance
+	float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
+	if (Distance < MinimumFocusRadius)
+	{
+		TotalCuriosity += 0.4 * CuriositySensitivity;
+		return;
+	}
+
+	//Base increment for curiosity when stimuli is detected
+	TotalCuriosity += 0.05 * CuriositySensitivity;
+	return;
+}
+
+
+//Called to determine threat
+void AEnemyCharacter::DetermineThreat()
+{
+	if (bCanSeeActor)
+	{
+		CalculateThreat();
+		IsThreatened = TotalThreat > ThreatThreshold ? true : false;
+
+		//Prints messages to screen
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, FString::Printf(TEXT(">> EnemyCharacter: Total Threat at = %f"), TotalThreat));
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT(">> EnemyCharacter: Is Threat = %s"), IsThreatened ? TEXT("True") : TEXT("False")));
+	}
+	else
+	{
+		TotalThreat -= 1;
+		IsThreatened = false;
+	}
+}
+
+
+// Called to Calculate Threat
+void AEnemyCharacter::CalculateThreat()
+{
+	FVector StimuliDirection = DetectedActor->GetActorLocation() - GetActorLocation();
+	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
+
+	// Check within focused sight
+	if (DotResult >= 0.8)
+	{
+		// Check within focused distance
+		float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
+		if (Distance < MinimumFocusRadius)
+		{
+			TotalCuriosity -= 1;
+			TotalThreat += 0.8;
+			return;
+		}
+
+		TotalThreat += 0.2;
+	}
+}
+
+// Called to clamp metric values
+void AEnemyCharacter::ClampValues()
+{
+	TotalCuriosity = FMath::Clamp(TotalCuriosity, float(0), float(100));
+	TotalThreat = FMath::Clamp(TotalThreat, float(0), float(100));
+}
+
+// Called to process incoming sound events
+void AEnemyCharacter::ProcessSoundEvent(FAIStimulus Stimulus)
+{
+	if (Stimulus.Tag.ToString() == "Gun")
+	{
+		TotalThreat += 70;
+		TotalCuriosity += 30;
+
+		//Prints message to the output log
+		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound is a gun"))
+		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound location at x:%f, y:%f"), Stimulus.StimulusLocation.X, Stimulus.StimulusLocation.Y)
+	}
+}
+
