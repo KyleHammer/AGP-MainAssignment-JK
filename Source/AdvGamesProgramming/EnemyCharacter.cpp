@@ -71,10 +71,13 @@ void AEnemyCharacter::Tick(float DeltaTime)
 	else if (CurrentAgentState == AgentState::ENGAGE)
 	{
 		AgentEngage();
-		if (!bCanSeeActor)
+		if (!bCanSeeActor && HealthComponent->HealthPercentageRemaining() >= 0.4f)
 		{
-			//SetState(AgentState::PATROL);
 			SetState(AgentState::CHASE);
+		}
+		else if(!bCanSeeActor)
+		{
+			SetState(AgentState::PATROL);
 		}
 		else if (bCanSeeActor && HealthComponent->HealthPercentageRemaining() < 0.4f)
 		{
@@ -110,6 +113,19 @@ void AEnemyCharacter::Tick(float DeltaTime)
 		AgentEngagePivot();
 		return;
 	}
+	else if (CurrentAgentState == AgentState::INVESTIGATE)
+	{
+		return;
+	}
+	else if (CurrentAgentState == AgentState::RETRACESTEPS)
+	{
+		AgentRetraceSteps();
+		return;
+	}
+	else if (CurrentAgentState == AgentState::MOVETOCLOSESTNODE)
+	{
+		AgentMoveToClosestNode();
+	}
 	MoveAlongPath();
 }
 
@@ -142,6 +158,15 @@ void AEnemyCharacter::SetState(AgentState NewState)
 	case 6:
 		StateToString = "ENGAGEPIVOT";
 		break;
+	case 7:
+		StateToString = "INVESTIGATE";
+		break;
+	case 8:
+		StateToString = "RETRACESTEPS";
+		break;
+	case 9:
+		StateToString = "MOVETOCLOSESTNODE";
+		break;
 	default:
 		StateToString = "UNKNOWN";
 		break;
@@ -151,22 +176,6 @@ void AEnemyCharacter::SetState(AgentState NewState)
 	if(GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("State switched to " + StateToString));
 }
-
-// Check of the enemy health is below 0
-void AEnemyCharacter::CheckHealthForDeath()
-{
-	// No need to check health if the enemy is already dead
-	if(CurrentAgentState == AgentState::DEAD)
-	{
-		return;
-	}
-	
-	if(HealthComponent->HealthPercentageRemaining() <= 0.0f)
-	{
-		SetState(AgentState::DEAD);
-	}
-}
-
 
 // Called to bind functionality to input
 void AEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -211,6 +220,15 @@ void AEnemyCharacter::AgentEvade()
 	}
 }
 
+// Called in a couple different states to switch to evade when at low health
+void AEnemyCharacter::EvadeAtLowHealth()
+{
+	if(HealthComponent->HealthPercentageRemaining() < 0.4f)
+	{
+		SetState(AgentState::EVADE);
+	}
+}
+
 void AEnemyCharacter::AgentDead()
 {
 	// Death check. This ensures the following code is only run once
@@ -225,6 +243,21 @@ void AEnemyCharacter::AgentDead()
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("ENEMY HAS DIED"));
 
 		PlayDeathAnimation();
+	}
+}
+
+// Check of the enemy health is below 0
+void AEnemyCharacter::CheckHealthForDeath()
+{
+	// No need to check health if the enemy is already dead
+	if(CurrentAgentState == AgentState::DEAD)
+	{
+		return;
+	}
+	
+	if(HealthComponent->HealthPercentageRemaining() <= 0.0f)
+	{
+		SetState(AgentState::DEAD);
 	}
 }
 
@@ -258,6 +291,8 @@ void AEnemyCharacter::ExitStartled()
 
 void AEnemyCharacter::AgentChase()
 {
+	EvadeAtLowHealth();
+	
 	if(bCanSeeActor)
 	{
 		SetState(AgentState::ENGAGEPIVOT);
@@ -269,15 +304,11 @@ void AEnemyCharacter::AgentChase()
 		WorldDirection.Normalize();
 		AddMovementInput(WorldDirection, 1.0f);
 
-		//Get the AI to face in the direction of travel.
-		FRotator FaceDirection = WorldDirection.ToOrientationRotator();
-		FaceDirection.Roll = 0.f;
-		FaceDirection.Pitch = 0.f;
-		SetActorRotation(FaceDirection);
-
+		FaceDirectionOfTravel(WorldDirection);
+		
 		if(FVector::Distance(GetActorLocation(), LastSeenLocation) < 100.0f)
 		{
-			SetState(AgentState::PATROL);
+			SetState(AgentState::RETRACESTEPS);
 		}
 	}
 	
@@ -285,6 +316,8 @@ void AEnemyCharacter::AgentChase()
 
 void AEnemyCharacter::AgentEngagePivot()
 {
+	EvadeAtLowHealth();
+	
 	if(bCanSeeActor)
 	{
 		LastSeenLocation = DetectedActor->GetActorLocation();
@@ -293,9 +326,36 @@ void AEnemyCharacter::AgentEngagePivot()
 	}
 	else
 	{
+		LocationBeforeChasing = GetActorLocation();
 		SetState(AgentState::CHASE);
 	}
 	
+}
+
+void AEnemyCharacter::AgentRetraceSteps()
+{
+	// Find the direction of their last location before chasing and move towards it
+	FVector WorldDirection = LocationBeforeChasing - GetActorLocation();
+	WorldDirection.Normalize();
+	AddMovementInput(WorldDirection, 1.0f);
+
+	FaceDirectionOfTravel(WorldDirection);
+
+	// Find the closest node after retracing their steps
+	if(FVector::Distance(GetActorLocation(), LocationBeforeChasing) < 100.0f)
+	{
+		// Empty the path before generating the new path
+		Path.Empty();
+		SetState(AgentState::MOVETOCLOSESTNODE);
+	}
+}
+
+void AEnemyCharacter::AgentMoveToClosestNode()
+{
+	if (Path.Num() == 0 && Manager != NULL)
+	{
+		Path = Manager->GeneratePath(CurrentNode, Manager->FindNearestNode(GetActorLocation()));
+	}
 }
 
 
@@ -331,6 +391,10 @@ void AEnemyCharacter::MoveAlongPath()
 		{
 			UE_LOG(LogTemp, Display, TEXT("At Node %s"), *CurrentNode->GetName())
 			CurrentNode = Path.Pop();
+			if(CurrentAgentState == AgentState::MOVETOCLOSESTNODE)
+			{
+				SetState(AgentState::PATROL);
+			}
 		}
 		else
 		{
@@ -338,12 +402,18 @@ void AEnemyCharacter::MoveAlongPath()
 			WorldDirection.Normalize();
 			AddMovementInput(WorldDirection, 1.0f);
 
-			//Get the AI to face in the direction of travel.
-			FRotator FaceDirection = WorldDirection.ToOrientationRotator();
-			FaceDirection.Roll = 0.f;
-			FaceDirection.Pitch = 0.f;
-			SetActorRotation(FaceDirection);
+			FaceDirectionOfTravel(WorldDirection);
 		}
 	}
 }
+
+void AEnemyCharacter::FaceDirectionOfTravel(FVector WorldDirection)
+{
+	//Get the AI to face in the direction of travel.
+	FRotator FaceDirection = WorldDirection.ToOrientationRotator();
+	FaceDirection.Roll = 0.f;
+	FaceDirection.Pitch = 0.f;
+	SetActorRotation(FaceDirection);
+}
+
 

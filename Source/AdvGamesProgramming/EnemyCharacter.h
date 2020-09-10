@@ -21,7 +21,10 @@ enum class AgentState : uint8
 	DEAD,
 	STARTLED,
 	CHASE,
-	ENGAGEPIVOT
+	ENGAGEPIVOT,
+	INVESTIGATE,
+	RETRACESTEPS,
+	MOVETOCLOSESTNODE
 };
 
 UCLASS()
@@ -89,6 +92,10 @@ public:
 	UFUNCTION()
     void AgentEngagePivot();
 	UFUNCTION()
+    void AgentRetraceSteps();
+	UFUNCTION()
+    void AgentMoveToClosestNode();
+	UFUNCTION()
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
@@ -96,7 +103,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FVector LastSeenLocation;
 	ANavigationNode* LastSeenLocationNode;
 	
 	UPROPERTY(EditAnywhere, meta=(UIMin = "10.0", UIMax = "1000.0", ClampMin = "10.0", ClampMax = "1000.0"))
@@ -104,8 +110,13 @@ public:
 
 private:
 
+	FVector LastSeenLocation;
+	FVector LocationBeforeChasing;
+	
 	void SetState(AgentState NewState);
 	void MoveAlongPath();
 	void CheckHealthForDeath();
+	void EvadeAtLowHealth();
+	void FaceDirectionOfTravel(FVector WorldDirection);
 
 };
