@@ -193,7 +193,7 @@ void AEnemyCharacter::SetState(AgentState NewState)
 		
 	// Print new state to the screen
 	if(GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("State switched to " + StateToString));
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("State switched to " + StateToString));
 }
 
 // Called to bind functionality to input
@@ -219,7 +219,7 @@ void AEnemyCharacter::AgentEngage()
 	{
 		LastSeenLocation = DetectedActor->GetActorLocation();
 		FVector DirectionToTarget = LastSeenLocation - GetActorLocation();
-		Fire(DirectionToTarget);
+		FireIfThreatened(DirectionToTarget);
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindNearestNode(DetectedActor->GetActorLocation()));
@@ -233,7 +233,7 @@ void AEnemyCharacter::AgentEvade()
 	if (bCanSeeActor)
 	{
 		FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
-		Fire(DirectionToTarget);
+		FireIfThreatened(DirectionToTarget);
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindFurthestNode(DetectedActor->GetActorLocation()));
@@ -341,7 +341,7 @@ void AEnemyCharacter::AgentEngagePivot()
 	{
 		LastSeenLocation = DetectedActor->GetActorLocation();
 		FVector DirectionToTarget = LastSeenLocation - GetActorLocation();
-		Fire(DirectionToTarget);
+		FireIfThreatened(DirectionToTarget);
 	}
 	else
 	{
@@ -430,7 +430,7 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Detected"));
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Detected"));
 		
 		DetectedActor = SensedActor;
 		bCanSeeActor = true;
@@ -442,7 +442,7 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 	else
 	{
 		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Lost"));
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Lost"));
 		
 		bCanSeeActor = false;
 	}
@@ -478,8 +478,13 @@ void AEnemyCharacter::MoveTowardsPoint(FVector LocationToMoveTo)
 	WorldDirection.Normalize();
 	AddMovementInput(WorldDirection, 1.0f);
 
+	RotateTowardsPoint(WorldDirection);
+}
+
+void AEnemyCharacter::RotateTowardsPoint(FVector faceDirection)
+{
 	//Get the AI to face in the direction of travel.
-	FRotator FaceDirection = WorldDirection.ToOrientationRotator();
+	FRotator FaceDirection = faceDirection.ToOrientationRotator();
 	FaceDirection.Roll = 0.f;
 	FaceDirection.Pitch = 0.f;
 	SetActorRotation(FaceDirection);
@@ -640,6 +645,18 @@ void AEnemyCharacter::ProcessSoundEvent(FAIStimulus Stimulus)
 		//Prints message to the output log
 		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound is a gun"))
 		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound location at x:%f, y:%f"), Stimulus.StimulusLocation.X, Stimulus.StimulusLocation.Y)
+	}
+}
+
+void AEnemyCharacter::FireIfThreatened(FVector DirectionToTarget)
+{
+	if(IsThreatened)
+	{
+		Fire(DirectionToTarget);
+	}
+	else
+	{
+		RotateTowardsPoint(DetectedActor->GetActorLocation() - GetActorLocation());
 	}
 }
 

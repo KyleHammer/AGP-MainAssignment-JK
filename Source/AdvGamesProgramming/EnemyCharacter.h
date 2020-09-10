@@ -172,7 +172,9 @@ private:
 	void CheckHealthForDeath();
 	void EvadeAtLowHealth();
 	void MoveTowardsPoint(FVector LocationToMoveTo);
+	void RotateTowardsPoint(FVector faceDirection);
 	void ReduceStuckTimer();
 	void ResetStuckTimer();
 	void InvestigateOnDamage();
+	void FireIfThreatened(FVector DirectionToTarget);
 };
