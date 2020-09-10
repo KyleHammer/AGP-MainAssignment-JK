@@ -112,11 +112,16 @@ private:
 
 	FVector LastSeenLocation;
 	FVector LocationBeforeChasing;
+	FVector LastFrameEnemyLocation;
+
+	float StuckTimer;
 	
 	void SetState(AgentState NewState);
 	void MoveAlongPath();
 	void CheckHealthForDeath();
 	void EvadeAtLowHealth();
 	void FaceDirectionOfTravel(FVector WorldDirection);
+	void ReduceStuckTimer();
+	void ResetStuckTimer();
 
 };

@@ -30,6 +30,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.h" />
+        <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.cpp" />
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" />
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" />
       </list>

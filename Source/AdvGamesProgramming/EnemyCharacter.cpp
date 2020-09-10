@@ -2,6 +2,7 @@
 
 
 #include "EnemyCharacter.h"
+#include <string>
 #include "EngineUtils.h"
 
 // Sets default values
@@ -18,6 +19,7 @@ AEnemyCharacter::AEnemyCharacter()
 	// Bool setup for states
 	bPreviouslySeenPlayer = false;
 	bIsDead = false;
+	ResetStuckTimer();
 }
 
 // Called when the game starts or when spawned
@@ -134,6 +136,8 @@ void AEnemyCharacter::SetState(AgentState NewState)
 {
 	CurrentAgentState = NewState;
 
+	ResetStuckTimer();
+
 	FString StateToString;
 	switch (CurrentAgentState)
 	{
@@ -188,8 +192,10 @@ void AEnemyCharacter::AgentPatrol()
 {
 	if (Path.Num() == 0 && Manager != NULL)
 	{
+		ResetStuckTimer();
 		Path = Manager->GeneratePath(CurrentNode, Manager->AllNodes[FMath::RandRange(0, Manager->AllNodes.Num() - 1)]);
 	}
+	ReduceStuckTimer();
 }
 
 void AEnemyCharacter::AgentEngage()
@@ -311,7 +317,8 @@ void AEnemyCharacter::AgentChase()
 			SetState(AgentState::RETRACESTEPS);
 		}
 	}
-	
+
+	ReduceStuckTimer();
 }
 
 void AEnemyCharacter::AgentEngagePivot()
@@ -334,6 +341,12 @@ void AEnemyCharacter::AgentEngagePivot()
 
 void AEnemyCharacter::AgentRetraceSteps()
 {
+	// If the player is detected while retracing steps, initiate attack
+	if(bCanSeeActor)
+	{
+		SetState(AgentState::ENGAGEPIVOT);
+	}
+	
 	// Find the direction of their last location before chasing and move towards it
 	FVector WorldDirection = LocationBeforeChasing - GetActorLocation();
 	WorldDirection.Normalize();
@@ -348,16 +361,28 @@ void AEnemyCharacter::AgentRetraceSteps()
 		Path.Empty();
 		SetState(AgentState::MOVETOCLOSESTNODE);
 	}
+
+	ReduceStuckTimer();
 }
 
 void AEnemyCharacter::AgentMoveToClosestNode()
 {
+	// Find the closest node in the path
 	if (Path.Num() == 0 && Manager != NULL)
 	{
 		Path = Manager->GeneratePath(CurrentNode, Manager->FindNearestNode(GetActorLocation()));
+		
 	}
-}
 
+	// Since the enemy is already moving towards the closest node, we
+	// might as well enter engage state instead of engage pivot state
+	if(bCanSeeActor)
+	{
+		SetState(AgentState::ENGAGE);
+	}
+
+	ReduceStuckTimer();
+}
 
 void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
@@ -389,7 +414,7 @@ void AEnemyCharacter::MoveAlongPath()
 		//UE_LOG(LogTemp, Display, TEXT("Current Node: %s"), *CurrentNode->GetName())
 		if ((GetActorLocation() - CurrentNode->GetActorLocation()).IsNearlyZero(PathfindingNodeAccuracy))
 		{
-			UE_LOG(LogTemp, Display, TEXT("At Node %s"), *CurrentNode->GetName())
+			//UE_LOG(LogTemp, Display, TEXT("At Node %s"), *CurrentNode->GetName())
 			CurrentNode = Path.Pop();
 			if(CurrentAgentState == AgentState::MOVETOCLOSESTNODE)
 			{
@@ -416,4 +441,37 @@ void AEnemyCharacter::FaceDirectionOfTravel(FVector WorldDirection)
 	SetActorRotation(FaceDirection);
 }
 
+void AEnemyCharacter::ReduceStuckTimer()
+{
+	// If a certain amount of time passes and the enemy hasn't switched their movement state
+	// (i.e. they get stuck) switch states
+	StuckTimer -= GetWorld()->GetDeltaSeconds();
+
+	// Print stuck timer to the screen
+	if(GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::White, FString::Printf(TEXT("Stuck Timer: %f"), StuckTimer));
+	
+	if(StuckTimer <= 0.0f)
+	{
+		ResetStuckTimer();
+		
+		UE_LOG(LogTemp, Warning, TEXT("Stuck timer ran out, switching states"));
+		
+		// Find the closest node to move to if stuck
+		if(CurrentAgentState != AgentState::MOVETOCLOSESTNODE)
+		{
+			SetState(AgentState::MOVETOCLOSESTNODE);
+		}
+		// If stuck on finding the closest node, choose a random node through patrol instead
+		else
+		{
+			SetState(AgentState::PATROL);
+		}
+	}
+}
+
+void AEnemyCharacter::ResetStuckTimer()
+{
+	StuckTimer = 7.0f;
+}
 
