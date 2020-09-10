@@ -191,7 +191,9 @@ void AEnemyCharacter::SetState(AgentState NewState)
 		break;
 	}
 		
-	// Print new state to the screen
+	// Print new state to the screen and ue_log
+	UE_LOG(LogTemp, Display, TEXT("Enemy States >> Switched to %s"), *StateToString);
+	
 	if(GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("State switched to " + StateToString));
 }
@@ -232,8 +234,8 @@ void AEnemyCharacter::AgentEvade()
 {
 	if (bCanSeeActor)
 	{
-		FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
-		FireIfThreatened(DirectionToTarget);
+		// FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
+		// FireIfThreatened(DirectionToTarget);
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindFurthestNode(DetectedActor->GetActorLocation()));
@@ -429,16 +431,23 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		if(GEngine) {
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Detected"));
+
+		if(Stimulus.Tag.ToString() == "Gun") 
+		{ 
+			ProcessSoundEvent(Stimulus); 
 		}
-
-		DetectedActor = SensedActor;
-		bCanSeeActor = true;
-
-		ProcessSoundEvent(Stimulus);
+		else
+		{
+			if(GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Seen"));
+			}
+			
+			DetectedActor = SensedActor;
+			bCanSeeActor = true;
 	
-		bPreviouslySeenPlayer = true;
+			bPreviouslySeenPlayer = true;
+		}
 	}
 	else
 	{
