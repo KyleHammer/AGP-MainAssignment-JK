@@ -28,27 +28,33 @@ public:
 	// Sets default values for this character's properties
 	AEnemyCharacter();
 
+	//Sensitivity values
 	UPROPERTY(EditAnywhere)
 	float CuriositySensitivity;
 	UPROPERTY(EditAnywhere)
 	float ThreatSensitivity;
 
+	//Curiosity metric
 	UPROPERTY(VisibleAnywhere)
 	float TotalCuriosity; //Likely between 0 - 100
 	UPROPERTY(VisibleAnywhere)
 	bool IsCurious;
 
+	//Threat metric
 	UPROPERTY(VisibleAnywhere)
 	float TotalThreat; //Likely between 0 - 100
 	UPROPERTY(VisibleAnywhere)
 	bool IsThreatened;
 
+	//Threshold values for the metric bool variables
 	UPROPERTY(EditAnywhere)
 	float CuriousityThreshold;
 	UPROPERTY(EditAnywhere)
 	float ThreatThreshold;
+
+	//Minimum focus radius
 	UPROPERTY(EditAnywhere)
-	float MinimumAwarenessRadius;
+	float MinimumFocusRadius;
 
 protected:
 	// Called when the game starts or when spawned

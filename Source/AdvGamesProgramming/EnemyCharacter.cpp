@@ -133,11 +133,6 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		bCanSeeActor = true;
 
 		ProcessSoundEvent(Stimulus);
-
-		if (Stimulus.Tag.ToString() == "Player")
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT(">> EnemyCharacter: Saw Player")));
-		}
 	}
 	else
 	{
@@ -145,6 +140,7 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		bCanSeeActor = false;
 	}
 }
+
 
 void AEnemyCharacter::MoveAlongPath()
 {
@@ -175,77 +171,87 @@ void AEnemyCharacter::MoveAlongPath()
 /////////////////////////////////////////////////////////////////////////////
 // RELATED METHODS FOR SENSE ADJUSTMENT
 
+
+//Called to run determination and calculation of curiosity
 void AEnemyCharacter::DetermineCuriosity()
 {
-	if (bCanSeeActor) 
+	if (bCanSeeActor)
 	{
 		CalculateCuriosity();
-
 		IsCurious = TotalCuriosity > CuriousityThreshold ? true : false;
 
 		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT(">> EnemyCharacter: Total Curiosity at = %f"), TotalCuriosity));
 		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::White, FString::Printf(TEXT(">> EnemyCharacter: Is Curious = %s"), IsCurious ? TEXT("True") : TEXT("False")));
-	} 
-	else 
+	}
+	else
 	{
 		TotalCuriosity -= 1;
 		IsCurious = false;
 	}
 }
 
+// Calculates the curiosity metric for the AI
 void AEnemyCharacter::CalculateCuriosity()
 {
-	FVector StimuliDiretion = DetectedActor->GetActorLocation() - GetActorLocation();
-	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDiretion.GetSafeNormal(1));
-	
-	//Check  within  peripheral view
+	FVector StimuliDirection = DetectedActor->GetActorLocation() - GetActorLocation();
+	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
+
+	// Displays the dot product on screen (1 = Forward,  -1 = Back)
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("Dot Product: %f"),DotResult));
+
+	// Check within peripheral view
 	if (DotResult >= 0.7)
 	{
 		TotalCuriosity += 0.5 * CuriositySensitivity;
 		return;
 	}
-	//Check within focused distance
-	float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
 
-	if (Distance < MinimumAwarenessRadius)
+	// Check within focus distance
+	float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
+	if (Distance < MinimumFocusRadius)
 	{
 		TotalCuriosity += 0.4 * CuriositySensitivity;
 		return;
 	}
 
+	//Base increment for curiosity when stimuli is detected
 	TotalCuriosity += 0.05 * CuriositySensitivity;
-
 	return;
 }
 
+
+//Called to determine threat
 void AEnemyCharacter::DetermineThreat()
 {
-	if (bCanSeeActor) {
+	if (bCanSeeActor)
+	{
 		CalculateThreat();
-
 		IsThreatened = TotalThreat > ThreatThreshold ? true : false;
 
+		//Prints messages to screen
 		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, FString::Printf(TEXT(">> EnemyCharacter: Total Threat at = %f"), TotalThreat));
 		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT(">> EnemyCharacter: Is Threat = %s"), IsThreatened ? TEXT("True") : TEXT("False")));
-	} 
-	else 
+	}
+	else
 	{
 		TotalThreat -= 1;
 		IsThreatened = false;
 	}
 }
 
+
+// Called to Calculate Threat
 void AEnemyCharacter::CalculateThreat()
 {
-	FVector StimuliDiretion = DetectedActor->GetActorLocation() - GetActorLocation();
-	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDiretion.GetSafeNormal(1));
+	FVector StimuliDirection = DetectedActor->GetActorLocation() - GetActorLocation();
+	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
 
+	// Check within focused sight
 	if (DotResult >= 0.8)
 	{
-		//Check within focused distance
+		// Check within focused distance
 		float Distance = FVector::Dist(DetectedActor->GetActorLocation(), GetActorLocation());
-
-		if (Distance < MinimumAwarenessRadius)
+		if (Distance < MinimumFocusRadius)
 		{
 			TotalCuriosity -= 1;
 			TotalThreat += 0.8;
@@ -256,30 +262,24 @@ void AEnemyCharacter::CalculateThreat()
 	}
 }
 
+// Called to clamp metric values
 void AEnemyCharacter::ClampValues()
 {
-	TotalCuriosity = FMath::Clamp(TotalCuriosity, float(0.0), float(100.0));
-	TotalThreat = FMath::Clamp(TotalThreat, float(0.0), float(100.0));
+	TotalCuriosity = FMath::Clamp(TotalCuriosity, float(0), float(100));
+	TotalThreat = FMath::Clamp(TotalThreat, float(0), float(100));
 }
 
-// Summary: Processes sound events encountered by the agent
-//
+// Called to process incoming sound events
 void AEnemyCharacter::ProcessSoundEvent(FAIStimulus Stimulus)
 {
 	if (Stimulus.Tag.ToString() == "Gun")
 	{
-		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound is a gun"))
-		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound location at x:%f, y:%f"), Stimulus.StimulusLocation.X, Stimulus.StimulusLocation.Y)
-
 		TotalThreat += 70;
 		TotalCuriosity += 30;
-	}
-}
 
-// Summary: Basic function for calculating distance
-//
-float AEnemyCharacter::FindDistance(FVector InitialLocation, FVector EndLocation)
-{
-	return FVector::Dist(InitialLocation, EndLocation);
+		//Prints message to the output log
+		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound is a gun"))
+		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound location at x:%f, y:%f"), Stimulus.StimulusLocation.X, Stimulus.StimulusLocation.Y)
+	}
 }
 
