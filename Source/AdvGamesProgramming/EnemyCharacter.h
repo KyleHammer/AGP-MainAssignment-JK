@@ -120,6 +120,7 @@ private:
 	float InvestigationDelay;
 	float InvestigateTurnSpeed;
 	float StuckTimer;
+	float LastFrameHealth;
 	
 	void MoveAlongPath();
 	void CheckHealthForDeath();
@@ -127,5 +128,5 @@ private:
 	void FaceDirectionOfTravel(FVector WorldDirection);
 	void ReduceStuckTimer();
 	void ResetStuckTimer();
-
+	void InvestigateOnDamage();
 };

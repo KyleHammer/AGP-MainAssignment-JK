@@ -35,6 +35,7 @@ void AEnemyCharacter::BeginPlay()
 	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyCharacter::SensePlayer);
 	
 	HealthComponent = FindComponentByClass<UHealthComponent>();
+	LastFrameHealth = HealthComponent->CurrentHealth;
 	DetectedActor = nullptr;
 	bCanSeeActor = false;
 }
@@ -45,6 +46,8 @@ void AEnemyCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	CheckHealthForDeath();
+
+	InvestigateOnDamage();
 
 	// If the enemy takes damage and hasn't seen the player in the past
 	// switch to the startled state
@@ -508,3 +511,11 @@ void AEnemyCharacter::ResetStuckTimer()
 	StuckTimer = 7.0f;
 }
 
+void AEnemyCharacter::InvestigateOnDamage()
+{
+	if(LastFrameHealth != HealthComponent->CurrentHealth &&	!bCanSeeActor)
+	{
+		SetState(AgentState::INVESTIGATE);
+	}
+	LastFrameHealth = HealthComponent->CurrentHealth;
+}
