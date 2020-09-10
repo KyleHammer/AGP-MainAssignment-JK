@@ -535,6 +535,7 @@ void AEnemyCharacter::LastFrameDamageCheck()
 		{
 			SetState(AgentState::STARTLED);
 		}
+		// Turn around using the investigate state if player cannot be seen
 		else if(!bCanSeeActor)
 		{
 			bStartingInvestigation = true;
