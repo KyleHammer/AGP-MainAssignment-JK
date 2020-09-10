@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "NavigationNode.h"
 #include "GameFramework/Character.h"
+#include "Engine/Engine.h"
 #include "AIManager.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "HealthComponent.h"
+#include "TimerManager.h"
 #include "EnemyCharacter.generated.h"
 
 UENUM()
@@ -15,7 +17,14 @@ enum class AgentState : uint8
 {
 	PATROL,
 	ENGAGE,
-	EVADE
+	EVADE,
+	DEAD,
+	STARTLED,
+	CHASE,
+	ENGAGEPIVOT,
+	INVESTIGATE,
+	RETRACESTEPS,
+	MOVETOCLOSESTNODE
 };
 
 UCLASS()
@@ -45,14 +54,18 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UAIPerceptionComponent* PerceptionComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	AgentState CurrentAgentState;
+	
 	UPROPERTY(VisibleAnywhere)
 	AActor* DetectedActor;
 	UPROPERTY(VisibleAnywhere)
 	bool bCanSeeActor;
 
 	UHealthComponent* HealthComponent;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Animation")
+	void PlayDeathAnimation();
 
 	UFUNCTION()
 	void AgentPatrol();
@@ -61,6 +74,22 @@ public:
 	UFUNCTION()
 	void AgentEvade();
 	UFUNCTION()
+	void AgentDead();
+	UFUNCTION()
+    void AgentStartled();
+	void ExitStartled();
+	UFUNCTION()
+	void AgentChase();
+	UFUNCTION()
+    void AgentEngagePivot();
+	UFUNCTION()
+    void AgentInvestigate();
+	void ExitInvestigation();
+	UFUNCTION()
+    void AgentRetraceSteps();
+	UFUNCTION()
+    void AgentMoveToClosestNode();
+	UFUNCTION()
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
@@ -68,8 +97,36 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	ANavigationNode* LastSeenLocationNode;
+	
+	UPROPERTY(EditAnywhere, meta=(UIMin = "10.0", UIMax = "1000.0", ClampMin = "10.0", ClampMax = "1000.0"))
+	float PathfindingNodeAccuracy;
+
+	UFUNCTION(BlueprintCallable)
+	void SetState(AgentState NewState);
+
 private:
 
-	void MoveAlongPath();
+	FVector LastSeenLocation;
+	FVector LocationBeforeChasing;
+	FVector LastFrameEnemyLocation;
 
+	bool bPreviouslySeenPlayer;
+	bool bIsDead;
+	bool bStartingInvestigation;
+	
+	float StartledDelay;
+	float StartledTurnSpeed;
+	float InvestigationDelay;
+	float InvestigateTurnSpeed;
+	float StuckTimer;
+	float LastFrameHealth;
+	
+	void MoveAlongPath();
+	void CheckHealthForDeath();
+	void EvadeAtLowHealth();
+	void MoveTowardsPoint(FVector LocationToMoveTo);
+	void ReduceStuckTimer();
+	void ResetStuckTimer();
+	void InvestigateOnDamage();
 };
