@@ -313,14 +313,11 @@ void AEnemyCharacter::AgentChase()
 	else
 	{
 		// Find the direction of the player's last seen location and move towards it
-		FVector WorldDirection = LastSeenLocation - GetActorLocation();
-		WorldDirection.Normalize();
-		AddMovementInput(WorldDirection, 1.0f);
-
-		FaceDirectionOfTravel(WorldDirection);
+		MoveTowardsPoint(LastSeenLocation);
 		
 		if(FVector::Distance(GetActorLocation(), LastSeenLocation) < 100.0f)
 		{
+			bStartingInvestigation = true;
 			SetState(AgentState::INVESTIGATE);
 		}
 	}
@@ -348,20 +345,23 @@ void AEnemyCharacter::AgentEngagePivot()
 
 void AEnemyCharacter::AgentInvestigate()
 {
-	if(!bStartingInvestigation)
+	
+	if(bStartingInvestigation)
 	{
 		// Freeze the character for a certain time before switching out of startled state
 		FTimerHandle MemberTimerHandle;
 		GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &AEnemyCharacter::ExitInvestigation, InvestigationDelay, true);
 
-		bStartingInvestigation = true;
+		bStartingInvestigation = false;
 	}
 
+	// Start attacking if player is found
 	if(bCanSeeActor)
 	{
 		SetState(AgentState::ENGAGEPIVOT);
 	}
 
+	// Do a slow turn investigation
 	FRotator CurrentActorRotation = GetActorRotation();
 	CurrentActorRotation.Yaw += GetWorld()->GetDeltaSeconds() * InvestigateTurnSpeed;
 	SetActorRotation(CurrentActorRotation);
@@ -369,6 +369,7 @@ void AEnemyCharacter::AgentInvestigate()
 
 void AEnemyCharacter::ExitInvestigation()
 {
+	// Only set the state if still investigating
 	if(CurrentAgentState == AgentState::INVESTIGATE)
 	{
 		SetState(AgentState::RETRACESTEPS);
@@ -384,11 +385,7 @@ void AEnemyCharacter::AgentRetraceSteps()
 	}
 	
 	// Find the direction of their last location before chasing and move towards it
-	FVector WorldDirection = LocationBeforeChasing - GetActorLocation();
-	WorldDirection.Normalize();
-	AddMovementInput(WorldDirection, 1.0f);
-
-	FaceDirectionOfTravel(WorldDirection);
+	MoveTowardsPoint(LocationBeforeChasing);
 
 	// Find the closest node after retracing their steps
 	if(FVector::Distance(GetActorLocation(), LocationBeforeChasing) < 100.0f)
@@ -424,7 +421,6 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		// Print message to the screen
 		if(GEngine)
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Detected"));
 		
@@ -435,7 +431,6 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 	}
 	else
 	{
-		// Print message to the screen
 		if(GEngine)
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Lost"));
 		
@@ -459,17 +454,19 @@ void AEnemyCharacter::MoveAlongPath()
 		}
 		else
 		{
-			FVector WorldDirection = CurrentNode->GetActorLocation() - GetActorLocation();
-			WorldDirection.Normalize();
-			AddMovementInput(WorldDirection, 1.0f);
-
-			FaceDirectionOfTravel(WorldDirection);
+			MoveTowardsPoint(CurrentNode->GetActorLocation());
 		}
 	}
 }
 
-void AEnemyCharacter::FaceDirectionOfTravel(FVector WorldDirection)
+
+void AEnemyCharacter::MoveTowardsPoint(FVector LocationToMoveTo)
 {
+	//Find the direction of travel
+	FVector WorldDirection = LocationToMoveTo - GetActorLocation();
+	WorldDirection.Normalize();
+	AddMovementInput(WorldDirection, 1.0f);
+
 	//Get the AI to face in the direction of travel.
 	FRotator FaceDirection = WorldDirection.ToOrientationRotator();
 	FaceDirection.Roll = 0.f;
@@ -515,6 +512,7 @@ void AEnemyCharacter::InvestigateOnDamage()
 {
 	if(LastFrameHealth != HealthComponent->CurrentHealth &&	!bCanSeeActor)
 	{
+		bStartingInvestigation = true;
 		SetState(AgentState::INVESTIGATE);
 	}
 	LastFrameHealth = HealthComponent->CurrentHealth;

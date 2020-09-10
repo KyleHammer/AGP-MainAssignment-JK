@@ -125,7 +125,7 @@ private:
 	void MoveAlongPath();
 	void CheckHealthForDeath();
 	void EvadeAtLowHealth();
-	void FaceDirectionOfTravel(FVector WorldDirection);
+	void MoveTowardsPoint(FVector LocationToMoveTo);
 	void ReduceStuckTimer();
 	void ResetStuckTimer();
 	void InvestigateOnDamage();
