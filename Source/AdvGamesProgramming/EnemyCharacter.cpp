@@ -194,6 +194,8 @@ void AEnemyCharacter::SetState(AgentState NewState)
 	// Print new state to the screen
 	if(GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("State switched to " + StateToString));
+
+	UE_LOG(LogTemp, Display, TEXT(">> State switched to %s"), *StateToString);
 }
 
 // Called to bind functionality to input
@@ -220,6 +222,7 @@ void AEnemyCharacter::AgentEngage()
 		LastSeenLocation = DetectedActor->GetActorLocation();
 		FVector DirectionToTarget = LastSeenLocation - GetActorLocation();
 		FireIfThreatened(DirectionToTarget);
+		
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindNearestNode(DetectedActor->GetActorLocation()));
@@ -232,8 +235,8 @@ void AEnemyCharacter::AgentEvade()
 {
 	if (bCanSeeActor)
 	{
-		FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
-		FireIfThreatened(DirectionToTarget);
+		//FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
+		//FireIfThreatened(DirectionToTarget);
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindFurthestNode(DetectedActor->GetActorLocation()));
@@ -429,16 +432,24 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		if(GEngine) {
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Detected"));
-		}
-
 		DetectedActor = SensedActor;
-		bCanSeeActor = true;
 
-		ProcessSoundEvent(Stimulus);
-	
-		bPreviouslySeenPlayer = true;
+		UE_LOG(LogTemp, Display, TEXT("Stimulus: %s"), *Stimulus.Tag.ToString());
+		
+		if(Stimulus.Tag.ToString() == "Gun")
+		{
+			ProcessSoundEvent(Stimulus);
+		}
+		else
+		{
+			if(GEngine) {
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Seen"));
+			}
+			
+			bCanSeeActor = true;
+			bPreviouslySeenPlayer = true;
+		}
+		
 	}
 	else
 	{
@@ -657,7 +668,7 @@ void AEnemyCharacter::ProcessSoundEvent(FAIStimulus Stimulus)
 
 void AEnemyCharacter::FireIfThreatened(FVector DirectionToTarget)
 {
-	if(IsThreatened)
+	if(IsThreatened && bCanSeeActor)
 	{
 		Fire(DirectionToTarget);
 	}
