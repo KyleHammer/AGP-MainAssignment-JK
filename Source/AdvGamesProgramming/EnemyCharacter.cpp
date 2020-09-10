@@ -196,6 +196,8 @@ void AEnemyCharacter::SetState(AgentState NewState)
 	
 	if(GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("State switched to " + StateToString));
+
+	UE_LOG(LogTemp, Display, TEXT(">> State switched to %s"), *StateToString);
 }
 
 // Called to bind functionality to input
@@ -222,6 +224,7 @@ void AEnemyCharacter::AgentEngage()
 		LastSeenLocation = DetectedActor->GetActorLocation();
 		FVector DirectionToTarget = LastSeenLocation - GetActorLocation();
 		FireIfThreatened(DirectionToTarget);
+		
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindNearestNode(DetectedActor->GetActorLocation()));
@@ -431,21 +434,21 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
+		DetectedActor = SensedActor;
 
-		if(Stimulus.Tag.ToString() == "Gun") 
-		{ 
-			ProcessSoundEvent(Stimulus); 
+		//Checks if stimulus contains tag gun
+		if(Stimulus.Tag.ToString() == "Gun")
+		{
+			UE_LOG(LogTemp, Display, TEXT("Stimulus: %s"), Stimulus.Tag.ToString().Contains("Gun") ? TEXT("True") : TEXT("False"));
+			ProcessSoundEvent(Stimulus);
 		}
 		else
 		{
-			if(GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Seen"));
+			if(GEngine) {
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Seen"));
 			}
 			
-			DetectedActor = SensedActor;
 			bCanSeeActor = true;
-	
 			bPreviouslySeenPlayer = true;
 		}
 	}
@@ -550,6 +553,9 @@ void AEnemyCharacter::InvestigateOnDamage()
 //Called to run determination and calculation of curiosity
 void AEnemyCharacter::DetermineCuriosity()
 {
+	if (DetectedActor == nullptr)
+		return;
+
 	if (bCanSeeActor)
 	{
 		CalculateCuriosity();
@@ -601,6 +607,9 @@ void AEnemyCharacter::CalculateCuriosity()
 //Called to determine threat
 void AEnemyCharacter::DetermineThreat()
 {
+	if (DetectedActor == nullptr) 
+		return;
+
 	if (bCanSeeActor)
 	{
 		CalculateThreat();
@@ -666,7 +675,7 @@ void AEnemyCharacter::ProcessSoundEvent(FAIStimulus Stimulus)
 
 void AEnemyCharacter::FireIfThreatened(FVector DirectionToTarget)
 {
-	if(IsThreatened)
+	if(IsThreatened && bCanSeeActor)
 	{
 		Fire(DirectionToTarget);
 	}
