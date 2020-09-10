@@ -41089,6 +41089,7 @@
     <e p="C:\Users\kylet\AppData\Local\JetBrains\Rider2020.2\resharper-host\Local\Transient\ReSharperHost\v202\SolutionCaches\_AdvGamesProgramming.1838836905.00" t="ExcludeRecursive" />
     <e p="C:\Users\kylet\Documents\Unreal Projects\AGP-MainAssignment-JK" t="IncludeFlat">
       <e p=".gitignore" t="Include" />
+      <e p="AdvGamesProgramming.code-workspace" t="Include" />
       <e p="AdvGamesProgramming.sln" t="IncludeFlat" />
       <e p="AdvGamesProgramming.uproject" t="Include" />
       <e p="Config" t="Include">
@@ -41113,8 +41114,6 @@
           <e p="AdvGamesProgramming.h" t="Include" />
           <e p="AdvGamesProgrammingGameModeBase.cpp" t="Include" />
           <e p="AdvGamesProgrammingGameModeBase.h" t="Include" />
-          <e p="AEnemyRaytrace.cpp" t="Include" />
-          <e p="AEnemyRaytrace.h" t="Include" />
           <e p="AIManager.cpp" t="Include" />
           <e p="AIManager.h" t="Include" />
           <e p="EnemyCharacter.cpp" t="Include" />
