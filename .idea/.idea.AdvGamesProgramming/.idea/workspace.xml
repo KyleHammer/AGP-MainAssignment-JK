@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b16ccf18-ceb3-4863-89a1-ebd44acdaa71" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.AdvGamesProgramming/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.AdvGamesProgramming/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/PlayerCharacterBlueprint.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/PlayerCharacterBlueprint.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Levels/TestingMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Levels/TestingMap.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="b16ccf18-ceb3-4863-89a1-ebd44acdaa71" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,8 +30,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.h" />
-        <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" />
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/AIManager.cpp" />
+        <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.h" />
         <option value="$PROJECT_DIR$/Source/AdvGamesProgramming/EnemyCharacter.cpp" />
       </list>
     </option>
@@ -180,7 +174,8 @@
       <workItem from="1599731286747" duration="644000" />
       <workItem from="1599735602166" duration="440000" />
       <workItem from="1599736883335" duration="1341000" />
-      <workItem from="1599739430528" duration="2571000" />
+      <workItem from="1599744564525" duration="454000" />
+      <workItem from="1599747286533" duration="1356000" />
     </task>
     <servers />
   </component>

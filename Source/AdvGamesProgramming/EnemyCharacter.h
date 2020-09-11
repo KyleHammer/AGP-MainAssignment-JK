@@ -157,7 +157,7 @@ private:
 	FVector LocationBeforeChasing;
 	FVector LastFrameEnemyLocation;
 
-	bool bPreviouslySeenPlayer;
+	bool bCanBeStartled;
 	bool bIsDead;
 	bool bStartingInvestigation;
 	
@@ -175,6 +175,6 @@ private:
 	void RotateTowardsPoint(FVector faceDirection);
 	void ReduceStuckTimer();
 	void ResetStuckTimer();
-	void InvestigateOnDamage();
+	void LastFrameDamageCheck();
 	void FireIfThreatened(FVector DirectionToTarget);
 };

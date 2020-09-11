@@ -22,7 +22,7 @@ AEnemyCharacter::AEnemyCharacter()
 	InvestigateTurnSpeed = 250.0f;
 
 	// Bool setup for states
-	bPreviouslySeenPlayer = false;
+	bCanBeStartled = true;
 	bIsDead = false;
 	bStartingInvestigation = false;
 	ResetStuckTimer();
@@ -55,14 +55,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 
 	CheckHealthForDeath();
 
-	InvestigateOnDamage();
-
-	// If the enemy takes damage and hasn't seen the player in the past
-	// switch to the startled state
-	if(!bPreviouslySeenPlayer && HealthComponent->HealthPercentageRemaining() < 1.0f)
-	{
-		SetState(AgentState::STARTLED);
-	}
+	LastFrameDamageCheck();
 
 	if(CurrentAgentState == AgentState::DEAD)
 	{
@@ -191,11 +184,11 @@ void AEnemyCharacter::SetState(AgentState NewState)
 		break;
 	}
 		
-	// Print new state to the screen
+	// Print new state to the screen and ue_log
+	UE_LOG(LogTemp, Display, TEXT("Enemy States >> Switched to %s"), *StateToString);
+	
 	if(GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("State switched to " + StateToString));
-
-	UE_LOG(LogTemp, Display, TEXT(">> State switched to %s"), *StateToString);
 }
 
 // Called to bind functionality to input
@@ -235,8 +228,8 @@ void AEnemyCharacter::AgentEvade()
 {
 	if (bCanSeeActor)
 	{
-		//FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
-		//FireIfThreatened(DirectionToTarget);
+		// FVector DirectionToTarget = DetectedActor->GetActorLocation() - GetActorLocation();
+		// FireIfThreatened(DirectionToTarget);
 		if (Path.Num() == 0)
 		{
 			Path = Manager->GeneratePath(CurrentNode, Manager->FindFurthestNode(DetectedActor->GetActorLocation()));
@@ -287,11 +280,9 @@ void AEnemyCharacter::CheckHealthForDeath()
 
 void AEnemyCharacter::AgentStartled()
 {
-	// If the enemy has not seen the player in the past, the following startled behaviour occurs
-	if(!bPreviouslySeenPlayer)
+	if(bCanBeStartled)
 	{
-		// The enemy now identifies the player to be seen
-		bPreviouslySeenPlayer = true;
+		bCanBeStartled = false;
 		
 		// Do a little jump to resemble being startled
 		Jump();
@@ -310,13 +301,14 @@ void AEnemyCharacter::AgentStartled()
 // Enter engage state after exiting startled state
 void AEnemyCharacter::ExitStartled()
 {
+	bCanBeStartled = true;
 	SetState(AgentState::ENGAGE);
 }
 
 void AEnemyCharacter::AgentChase()
 {
 	EvadeAtLowHealth();
-	
+
 	if(bCanSeeActor)
 	{
 		SetState(AgentState::ENGAGEPIVOT);
@@ -447,7 +439,6 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 			}
 			
 			bCanSeeActor = true;
-			bPreviouslySeenPlayer = true;
 		}
 	}
 	else
@@ -535,12 +526,21 @@ void AEnemyCharacter::ResetStuckTimer()
 	StuckTimer = 7.0f;
 }
 
-void AEnemyCharacter::InvestigateOnDamage()
+void AEnemyCharacter::LastFrameDamageCheck()
 {
-	if(LastFrameHealth != HealthComponent->CurrentHealth &&	!bCanSeeActor)
+	if(LastFrameHealth != HealthComponent->CurrentHealth)
 	{
-		bStartingInvestigation = true;
-		SetState(AgentState::INVESTIGATE);
+		// If player isn't seen, the enemy can still be startled and has a low threat level
+		if(!bCanSeeActor && bCanBeStartled && TotalThreat < 10.0f)
+		{
+			SetState(AgentState::STARTLED);
+		}
+		// Turn around using the investigate state if player cannot be seen
+		else if(!bCanSeeActor)
+		{
+			bStartingInvestigation = true;
+			SetState(AgentState::INVESTIGATE);
+		}
 	}
 	LastFrameHealth = HealthComponent->CurrentHealth;
 }
