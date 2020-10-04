@@ -29,6 +29,22 @@ public:
 
 	TArray<AActor*> SpawnedPrimitives;
 
+	//Defines the sea level and indicates minimum height for generated assets.
+	UPROPERTY(EditAnywhere)
+	float WaterLevel;
+
+	// Applied to second noise map as: HeightPoint = (NoiseValue.Z)^NoisePowerValue
+	UPROPERTY(EditAnywhere)
+	int NoisePowerValue;
+
+	//Defines the count density of plant objects in the scene. HIGHER the more detailed
+	UPROPERTY(EditAnywhere)
+	int NoiseDensity;
+
+	//Defines the maximum height that generated assets will be rendered at.
+	UPROPERTY(EditAnywhere)
+	float MaxBiomeHeight; 
+
 	UPROPERTY(EditAnywhere)
 	bool bRegenerateMaps;
 
@@ -41,6 +57,18 @@ public:
 	UPROPERTY(EditAnywhere)
 	UMaterial* DefaultMaterial;
 
+	UPROPERTY(EditAnywhere)
+	UMaterial* BestGrowthMaterial;
+
+	UPROPERTY(EditAnywhere)
+	UMaterial* OrdinaryGrowthMaterial;
+
+	UPROPERTY(EditAnywhere)
+	UMaterial* ColdMaterial;
+
+	UPROPERTY(EditAnywhere)
+	UMaterial* SeaLevelMaterial;
+
 protected :
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -52,13 +80,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual bool ShouldTickIfViewportsOnly() const override;
 
-	void GenerateSecondNoiseMap(float MapSize);
-	
-	void GenerateTempuratureMap();
+	void GenerateSecondNoiseMap(int RowSize, int ColSize, float PerlinRoughness, float PerlinScale);
+
+	void GenerateTempuratureMap(TArray<FVector> Verticies);
 
 	// For testing purposes
-	void CreateTempuraturePoints();
-	void TestNoiseMapPositions();
+	void CreateTempuraturePoints(TArray<FVector> Verticies);
+	void TestNoiseMapPositions(TArray<FVector> Verticies);
 
 	void ClearMaps();
 

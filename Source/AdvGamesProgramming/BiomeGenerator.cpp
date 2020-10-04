@@ -12,6 +12,9 @@ ABiomeGenerator::ABiomeGenerator()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	MaxBiomeHeight = 200;
+	NoisePowerValue = 2;
+	WaterLevel = -10;
 	bRegenerateMaps = false;
 	//static ConstructorHelpers::FClassFinder<UBlueprint> PrimitiveSphereBP(TEXT("/Blueprints/PrimitiveSphere"));
 }
@@ -31,7 +34,14 @@ void ABiomeGenerator::Tick(float DeltaTime)
 	if (bRegenerateMaps)
 	{
 		ClearMaps();
-		TestNoiseMapPositions();
+
+		TArray<FVector> MapVerticies = ProceduralGeneratedMap->Vertices;
+		int RowSize = ProceduralGeneratedMap->Height;
+		int ColSize = ProceduralGeneratedMap->Width;
+		
+		GenerateSecondNoiseMap(RowSize, ColSize, ProceduralGeneratedMap->PerlinRoughness, ProceduralGeneratedMap->PerlinScale);
+
+		TestNoiseMapPositions(MapVerticies);
 		bRegenerateMaps = false;
 	}
 }
@@ -41,34 +51,42 @@ bool ABiomeGenerator::ShouldTickIfViewportsOnly() const
 	return true;
 }
 
-void ABiomeGenerator::GenerateSecondNoiseMap(float MapSize)
+void ABiomeGenerator::GenerateSecondNoiseMap(int RowSize, int ColSize, float PerlinRoughness, float PerlinScale)
+{
+	float PerlinOffset = FMath::RandRange(-10000.0f, 10000.0f);
+
+	for (int X = 0; X < RowSize; X++)
+	{
+		for (int Y = 0; Y < ColSize; Y++)
+		{
+			float HeightVal = FMath::PerlinNoise2D(FVector2D(float(Y) * PerlinRoughness + PerlinOffset, float(X) * PerlinRoughness + PerlinOffset)) * PerlinScale;
+			SecondHeightMap.Add(HeightVal);
+		}
+	}
+}
+
+void ABiomeGenerator::GenerateTempuratureMap(TArray<FVector> Verticies)
 {
 
 }
 
-void ABiomeGenerator::GenerateTempuratureMap()
+void ABiomeGenerator::CreateTempuraturePoints(TArray<FVector> Verticies)
 {
 
 }
 
-void ABiomeGenerator::CreateTempuraturePoints()
+void ABiomeGenerator::TestNoiseMapPositions(TArray<FVector> Verticies)
 {
-
-}
-
-void ABiomeGenerator::TestNoiseMapPositions()
-{
-	TArray<FVector> MapVerticies = ProceduralGeneratedMap->Vertices; //Creates copy of the vertices
-
-
 	for (TActorIterator<APrimitiveObject> It(GetWorld()); It; ++It)
 	{
 		It->Destroy();
 	}
 
-	for (int MapPoint = 0; MapPoint < MapVerticies.Num()-1; MapPoint++)
+	for (int MapPoint = 0; MapPoint < Verticies.Num() - 1; MapPoint++)
 	{
-		APrimitiveObject* PrimitiveSphere = GetWorld()->SpawnActor<APrimitiveObject>(BasicSphere, MapVerticies[MapPoint], FRotator::ZeroRotator);
+		FVector Location = FVector(Verticies[MapPoint].X, Verticies[MapPoint].Y, SecondHeightMap[MapPoint]); // Currently is displaying the second generated map
+		APrimitiveObject *PrimitiveSphere = GetWorld()->SpawnActor<APrimitiveObject>(BasicSphere, Location, FRotator::ZeroRotator);
+		PrimitiveSphere->SetMaterial(DefaultMaterial);
 		SpawnedPrimitives.Add(PrimitiveSphere);
 	}
 }
@@ -81,5 +99,6 @@ void ABiomeGenerator::SpawnPrimitive(FVector SpawnPosition)
 void ABiomeGenerator::ClearMaps()
 {
 	InitialHeightMap.Empty();
+	SecondHeightMap.Empty();
 }
 
