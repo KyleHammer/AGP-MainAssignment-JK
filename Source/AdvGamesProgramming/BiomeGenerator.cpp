@@ -93,26 +93,8 @@ void ABiomeGenerator::TestNoiseMapPositions(TArray<FVector> Verticies, int Width
 				DetermineBiomePrimitive(PrimitiveSphere, Location.Z, Location.Z);
 				SpawnedPrimitives.Add(PrimitiveSphere);
 			}
-
-			/*FVector Location = Verticies[Row * Width + Col];
-			APrimitiveObject *PrimitiveSphere = GetWorld()->SpawnActor<APrimitiveObject>(Location, FRotator::ZeroRotator, FActorSpawnParameters());
-			DetermineBiomePrimitive(PrimitiveSphere, Location.Z, Location.Z);
-			SpawnedPrimitives.Add(PrimitiveSphere);*/
 		}
 	}
-
-	/*for (int MapPoint = 0; MapPoint < Verticies.Num() - 1; MapPoint++)
-	{
-		FVector Location = FVector(Verticies[MapPoint].X, Verticies[MapPoint].Y, Verticies[MapPoint].Z); // Currently is displaying the second generated map
-		
-
-
-		//First check for valid angle between neighboiring nodes
-		
-		APrimitiveObject* PrimitiveSphere = GetWorld()->SpawnActor<APrimitiveObject>(Location, FRotator::ZeroRotator, FActorSpawnParameters());
-		DetermineBiomePrimitive(PrimitiveSphere, Location.Z, Location.Z);
-		SpawnedPrimitives.Add(PrimitiveSphere);
-	}*/
 }
 
 void ABiomeGenerator::DetermineBiomePrimitive(APrimitiveObject* PrimitiveSphere, float NoisePointOne, float NoisePointTwo)
