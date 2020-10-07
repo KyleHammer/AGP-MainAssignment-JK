@@ -1,39 +1,50 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Kismet/KismetArrayLibrary.h"
 #include "WeaponPickup.h"
+#include "Kismet/KismetArrayLibrary.h"
 
 void AWeaponPickup::OnGenerate()
 {
 	APickup::OnGenerate();
+
+	//Find components for the abilities and shuffler algortihm
+	AbilityComponent = FindComponentByClass<UAbilityComponent>();
+	Shuffler = FindComponentByClass<URandArrayShuffler>();
+	
 	//Pick a weapon rarity tier:
-	//LEGENDARY = 5% chance
-	//MASTER = 15% chance
-	//RARE = 30% chance
-	//COMMON = 50% chance
-	UE_LOG(LogTemp, Warning, TEXT("GENERATING WEAPON PICKUP"))
+	
 	int32 RandomRarityValue = FMath::RandRange(1, 100);
 	//Will populate the RandBoolArray with a shuffled set of boolean values depending on the weapon rarity.
 	TArray<bool> RandBoolArray;
-	if (RandomRarityValue <= 5)
+	if (RandomRarityValue <= 4)
 	{
 		Rarity = WeaponPickupRarity::LEGENDARY;
-		GenerateRandBooleanArray(5, 4, RandBoolArray);
+		Shuffler->GenerateRandBooleanArray(5, 5, RandBoolArray);
 	}
-	else if (RandomRarityValue <= 20)
+	else if (RandomRarityValue <= 14)
 	{
-		Rarity = WeaponPickupRarity::MASTER;
-		GenerateRandBooleanArray(5, 3, RandBoolArray);
+		Rarity = WeaponPickupRarity::MASTERFUL;
+		Shuffler->GenerateRandBooleanArray(5, FMath::RandRange(3, 4), RandBoolArray);
 	}
-	else if (RandomRarityValue <= 50)
+	else if (RandomRarityValue <= 29)
 	{
-		Rarity = WeaponPickupRarity::RARE;
-		GenerateRandBooleanArray(5, 1, RandBoolArray);
+		Rarity = WeaponPickupRarity::STAUNCH;
+		Shuffler->GenerateRandBooleanArray(5, 4, RandBoolArray);
 	}
-	else
+	else if (RandomRarityValue <= 44)
 	{
-		Rarity = WeaponPickupRarity::COMMON;
-		GenerateRandBooleanArray(5, 0, RandBoolArray);
+		Rarity = WeaponPickupRarity::TABOO;
+		Shuffler->GenerateRandBooleanArray(5, 0, RandBoolArray);
+	}
+	else if (RandomRarityValue <= 52)
+	{
+		Rarity = WeaponPickupRarity::CURSED;
+		Shuffler->GenerateRandBooleanArray(5, 0, RandBoolArray);
+	}
+	else if(RandomRarityValue <= 60)
+	{
+		Rarity = WeaponPickupRarity::POWERLESS;
+		Shuffler->GenerateRandBooleanArray(5, 5, RandBoolArray);
 	}
 	
 	//Assign the good or bad weapon characteristics based on the result of the random boolean array.
@@ -42,23 +53,13 @@ void AWeaponPickup::OnGenerate()
 	MagazineSize = (RandBoolArray[2] ? FMath::RandRange(20, 100) : FMath::RandRange(1, 20));
 	WeaponAccuracy = (RandBoolArray[3] ? FMath::RandRange(100.0f, 1000.0f) : FMath::RandRange(20.0f, 80.0f));
 	FireRate = (RandBoolArray[4] ? FMath::RandRange(0.01f, 0.25f) : FMath::RandRange(0.25f, 1.0f));
-}
 
-void AWeaponPickup::GenerateRandBooleanArray(int32 ArrayLength, int32 NumTrue, TArray<bool>& RandBoolArray)
-{
-	for (int32 i = 0; i < ArrayLength; i++)
+	//If the weapon is cursed, make it unable to fire
+	//A cursed weapon will have it's ability strengthened
+	if(Rarity == WeaponPickupRarity::CURSED)
 	{
-		//Ternary Condition
-		RandBoolArray.Add(i < NumTrue ? true : false);
+		MagazineSize = 0;
 	}
 
-	//Card Shuffling Algorithm
-	for (int32 i = 0; i < RandBoolArray.Num(); i++)
-	{
-		int32 RandIndex = FMath::RandRange(0, RandBoolArray.Num() - 1);
-		bool Temp = RandBoolArray[i];
-		RandBoolArray[i] = RandBoolArray[RandIndex];
-		RandBoolArray[RandIndex] = Temp;
-	}
-
+	AbilityComponent->OnGenerate(Rarity, Shuffler);
 }
