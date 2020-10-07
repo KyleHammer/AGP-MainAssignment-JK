@@ -37,6 +37,12 @@ public:
 	// Sets default values for this character's properties
 	AEnemyCharacter();
 
+	// Used for turning on debug messages
+	UPROPERTY(EditAnywhere)
+	bool bPrintStateMessages;
+	UPROPERTY(EditAnywhere)
+	bool bPrintSensingMessages;
+
 	//Sensitivity values
 	UPROPERTY(EditAnywhere)
 	float CuriositySensitivity;
@@ -122,7 +128,7 @@ public:
 	void SensePlayer(AActor* ActorSensed, FAIStimulus Stimulus);
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire(FVector FireDirection);
-
+	
 	//Primary method for processing sound stimuli
 	void ProcessSoundEvent(FAIStimulus Stimulus);
 
