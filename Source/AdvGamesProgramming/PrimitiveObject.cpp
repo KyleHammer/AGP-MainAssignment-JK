@@ -15,7 +15,7 @@ APrimitiveObject::APrimitiveObject()
 	LocationComponent->SetWorldScale3D(FVector(0.2, 0.2, 0.2));
 	RootComponent = LocationComponent;
 
-	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere Mesh"));
 
 	//FAttachmentTransformRules TransformRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 	SphereMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
@@ -45,11 +45,11 @@ void APrimitiveObject::Tick(float DeltaTime)
 
 void APrimitiveObject::SetMaterial(UMaterial* PrimitiveMaterial)
 {
-	UStaticMesh* Mesh = SphereMesh->GetStaticMesh();
+	//UStaticMesh* Mesh = SphereMesh->GetStaticMesh();
 
-	if (Mesh != NULL)
+	if (SphereMesh != NULL)
 	{
-		Mesh->SetMaterial(0, PrimitiveMaterial);
+		SphereMesh->SetMaterial(0, PrimitiveMaterial);
 	}
 }
 

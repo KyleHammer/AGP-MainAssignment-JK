@@ -21,7 +21,7 @@ public:
 	//Heightmap of the verticies procedurally generated
 	TArray<float> InitialHeightMap;
 
-	//Seperate Heightmap use to overlay over initial heightmap
+	//SeperateNoiseMap that is used for detail variation for warmer climates
 	TArray<float> SecondHeightMap;
 
 	//Culmulative tempurature map combining both maps
@@ -31,7 +31,7 @@ public:
 
 	//Defines the sea level and indicates minimum height for generated assets.
 	UPROPERTY(EditAnywhere)
-	float WaterLevel;
+	float SeaLevel;
 
 	// Applied to second noise map as: HeightPoint = (NoiseValue.Z)^NoisePowerValue
 	UPROPERTY(EditAnywhere)
@@ -43,7 +43,11 @@ public:
 
 	//Defines the maximum height that generated assets will be rendered at.
 	UPROPERTY(EditAnywhere)
-	float MaxBiomeHeight; 
+	float MaxAltitude; 
+
+	//Defines the suitable angle to which these objects can spawn in (limits spawning steep slopes)
+	UPROPERTY(EditAnywhere)
+	float AllowedSlopeAngle;
 
 	UPROPERTY(EditAnywhere)
 	bool bRegenerateMaps;
@@ -58,16 +62,19 @@ public:
 	UMaterial* DefaultMaterial;
 
 	UPROPERTY(EditAnywhere)
-	UMaterial* BestGrowthMaterial;
+	UMaterial* HumidMaterial;
 
 	UPROPERTY(EditAnywhere)
-	UMaterial* OrdinaryGrowthMaterial;
+	UMaterial* WarmMaterial;
 
 	UPROPERTY(EditAnywhere)
 	UMaterial* ColdMaterial;
 
 	UPROPERTY(EditAnywhere)
 	UMaterial* SeaLevelMaterial;
+
+	UPROPERTY(EditAnywhere)
+	UMaterial* InvalidMaterial;
 
 protected :
 	// Called when the game starts or when spawned
@@ -86,7 +93,12 @@ public:
 
 	// For testing purposes
 	void CreateTempuraturePoints(TArray<FVector> Verticies);
-	void TestNoiseMapPositions(TArray<FVector> Verticies);
+	void TestNoiseMapPositions(TArray<FVector> Verticies, int Width, int Height);
+
+	void DetermineBiomePrimitive(APrimitiveObject* PrimitiveSphere, float NoisePointOne, float NoisePointTwo);
+
+	bool CheckValidSlopePosition(TArray<FVector> Verticies, int Width, int Height, int Row, int Col);
+	bool CheckValidAngle(FVector CurrentNode, FVector ToRightNode, FVector ToForwardNode);
 
 	void ClearMaps();
 
