@@ -13,7 +13,7 @@ APlantTerrainActor::APlantTerrainActor()
 
 	LocationComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Location Component"));
 
-	//LocationComponent = FindComponentByClass<USceneComponent>();
+	//Checks and loads the location component
 	if (!LocationComponent)
 	{
 		UE_LOG(LogTemp, Error, TEXT("NO PERCEPTION COMPONENT FOUND"))
@@ -23,8 +23,6 @@ APlantTerrainActor::APlantTerrainActor()
 	LocationComponent->bVisualizeComponent = true;
 
 	PlantMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere Mesh"));
-
-	//FAttachmentTransformRules TransformRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 	PlantMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 }
 
@@ -42,6 +40,8 @@ void APlantTerrainActor::Tick(float DeltaTime)
 
 }
 
+// Summary: Sets position of object
+//
 void APlantTerrainActor::SetPosition(FVector NewPosition)
 {
 	if (LocationComponent == NULL) return;
@@ -49,6 +49,8 @@ void APlantTerrainActor::SetPosition(FVector NewPosition)
 	LocationComponent->SetWorldLocation(NewPosition);
 }
 
+// Summary: Sets scale of object
+//
 void APlantTerrainActor::SetScale(FVector NewScale)
 {
 	if (LocationComponent == NULL) {
