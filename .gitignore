@@ -81,3 +81,7 @@ DerivedDataCache/*
 
 # Local History for Visual Studio Code
 .history/
+
+.idea/.idea.AdvGamesProgramming/.idea/contentModel.xml
+
+.idea/.idea.AdvGamesProgramming/.idea/workspace.xml
