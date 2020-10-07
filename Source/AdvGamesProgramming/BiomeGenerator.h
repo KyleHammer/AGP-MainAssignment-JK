@@ -19,29 +19,21 @@ public:
 	// Sets default values for this actor's properties
 	ABiomeGenerator();
 
-	//Heightmap of the verticies procedurally generated
-	TArray<float> InitialHeightMap;
-
-	//SeperateNoiseMap that is used for detail variation for warmer climates
-	TArray<float> SecondHeightMap;
-
-	//Culmulative tempurature map combining both maps
-	TArray<float> TempuratureMap;
-
+	// Stores test primitives
 	TArray<AActor*> SpawnedPrimitives;
 
+	// Stores terrain plants / foliage objects
 	TArray<AActor*> SpawnedTerrainFoliage;
-
-	UPROPERTY(VisibleAnywhere)
-	UProceduralMeshComponent *SeaLevelMesh;
 
 	//Defines the sea level and indicates minimum height for generated assets.
 	UPROPERTY(EditAnywhere)
 	float SeaLevel;
 
+	//Minimum scale for tree
 	UPROPERTY(EditAnywhere)
 	float MinScale;
 	
+	//Maximum scale for tree
 	UPROPERTY(EditAnywhere)
 	float MaxScale;
 
@@ -65,19 +57,23 @@ public:
 	bool bRegenerateMaps;
 
 	UPROPERTY(EditAnywhere)
+	bool bGenerateFoliage; //When true renders the foliage
+
+	UPROPERTY(EditAnywhere)
+	bool bGenerateTestSpheres; //When true renders the biome spheres
+
+	UPROPERTY(EditAnywhere)
 	AProcedurallyGeneratedMap* ProceduralGeneratedMap;
 
-	UPROPERTY(EditAnywhere, Category = "Spawning")
+	UPROPERTY(EditAnywhere, Category = "Sphere Item")
 	TSubclassOf<APrimitiveObject> BasicSphere;
 
 	UPROPERTY(EditAnywhere, Category = "Tree Item")
 	TSubclassOf<APlantTerrainActor> TreeObject;
 
+	//THESE ARE UNUSED FOR THE FINAL PRODUCT BUT WHERE USED FOR THE TEST SPHERE SPAWN
 	UPROPERTY(EditAnywhere)
 	UMaterial* DefaultMaterial;
-
-	UPROPERTY(EditAnywhere)
-	UMaterial* HumidMaterial;
 
 	UPROPERTY(EditAnywhere)
 	UMaterial* WarmMaterial;
@@ -101,7 +97,8 @@ public:
 	virtual bool ShouldTickIfViewportsOnly() const override;
 
 	void SpawnPlants(TArray<FVector> Verticies, int Width, int Height);
-
+	
+	void SpawnTestPrimitives(FVector SpawnPosition);
 	void DetermineBiomeSpawn(FVector SpawnPosition);
 
 	bool CheckValidSlopePosition(TArray<FVector> Verticies, int Width, int Height, int Row, int Col);

@@ -24,7 +24,6 @@ ABiomeGenerator::ABiomeGenerator()
 void ABiomeGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -39,18 +38,22 @@ void ABiomeGenerator::Tick(float DeltaTime)
 		TArray<FVector> MapVerticies = ProceduralGeneratedMap->Vertices;
 		int RowSize = ProceduralGeneratedMap->Height;
 		int ColSize = ProceduralGeneratedMap->Width;
-		
+
 		SpawnPlants(MapVerticies, ProceduralGeneratedMap->Width, ProceduralGeneratedMap->Height);
+		
 		bRegenerateMaps = false;
 	}
 }
 
+// Summary: Ensures that the class can run on viewport in editor
+//
 bool ABiomeGenerator::ShouldTickIfViewportsOnly() const
 {
 	return true;
 }
 
-
+//Summary: Spawns the plants corresponsing to the verticies making up the procedualmap
+//
 void ABiomeGenerator::SpawnPlants(TArray<FVector> Verticies, int Width, int Height)
 {
 	for (TActorIterator<APrimitiveObject> It(GetWorld()); It; ++It)
@@ -60,7 +63,7 @@ void ABiomeGenerator::SpawnPlants(TArray<FVector> Verticies, int Width, int Heig
 
 	for (TActorIterator<APlantTerrainActor> It(GetWorld()); It; ++It)
 	{
-		UE_LOG(LogTemp, Warning, TEXT(">> Destroyed plant actor"))
+		//UE_LOG(LogTemp, Warning, TEXT(">> Destroyed plant actor"))
 		It->Destroy();
 	}
 
@@ -71,13 +74,18 @@ void ABiomeGenerator::SpawnPlants(TArray<FVector> Verticies, int Width, int Heig
 			if (CheckValidSlopePosition(Verticies, Width, Height, Row, Col))
 			{
 				FVector Location = Verticies[Row * Width + Col];
-				DetermineBiomeSpawn(Location);
+
+				if (bGenerateTestSpheres)
+					SpawnTestPrimitives(Location);
+				if (bGenerateFoliage) DetermineBiomeSpawn(Location);
 			}
 		}
 	}
 }
 
 
+// Summary: Spawns objects depending on the type of biome position is in
+//
 void ABiomeGenerator::DetermineBiomeSpawn(FVector SpawnPosition)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("first: %f, secnd: %f"), NoisePointOne, NoisePointTwo);
@@ -101,7 +109,8 @@ void ABiomeGenerator::DetermineBiomeSpawn(FVector SpawnPosition)
 	SpawnedTerrainFoliage.Add(TerrainPlant);
 }
 
-// Summary: like
+// Summary: Returns boolean if the specifies position is not too steep
+//
 bool ABiomeGenerator::CheckValidSlopePosition(TArray<FVector> Verticies, int Width, int Height, int Row, int Col)
 {
 	if (Row == 0 && Col == 0)
@@ -154,7 +163,8 @@ bool ABiomeGenerator::CheckValidSlopePosition(TArray<FVector> Verticies, int Wid
 	return false;
 }
 
-// Summary checks the angle from the current to the next node
+// Summary: checks the angle from the current to the next node in both right and forward directions
+//
 bool ABiomeGenerator::CheckValidAngle(FVector CurrentNode, FVector ToRightNode, FVector ToForwardNode)
 {
 	FVector Direction = CurrentNode - ToRightNode;
@@ -177,12 +187,36 @@ bool ABiomeGenerator::CheckValidAngle(FVector CurrentNode, FVector ToRightNode, 
 	return false;
 }
 
+void ABiomeGenerator::SpawnTestPrimitives(FVector SpawnPosition)
+{
+	APrimitiveObject *PrimitiveSphere = GetWorld()->SpawnActor<APrimitiveObject>(SpawnPosition, FRotator::ZeroRotator);
 
+	if (SpawnPosition.Z <= SeaLevel)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("This position is below sea level"));
+		PrimitiveSphere->SetMaterial(SeaLevelMaterial);
+		return;
+	}
+
+	if (SpawnPosition.Z >= MaxAltitude)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("This position is above max altitude"));
+		PrimitiveSphere->SetMaterial(ColdMaterial);
+		return;
+	}
+	else 
+	{
+		PrimitiveSphere->SetMaterial(WarmMaterial);
+	}
+
+	SpawnedPrimitives.Add(PrimitiveSphere);
+}
+
+// Summary: Clears all arrays before regeneration of nodes
+//
 void ABiomeGenerator::ClearMaps()
 {
 	SpawnedTerrainFoliage.Empty();
 	SpawnedPrimitives.Empty();
-	InitialHeightMap.Empty();
-	SecondHeightMap.Empty();
 }
 
