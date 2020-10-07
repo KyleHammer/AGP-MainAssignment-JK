@@ -41,6 +41,8 @@ class ADVGAMESPROGRAMMING_API AWeaponPickup : public APickup
     int32 MagazineSize;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     float WeaponAccuracy;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    float FireRate;
 
     private:
 	
