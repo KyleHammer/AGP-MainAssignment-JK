@@ -16,7 +16,8 @@ ABiomeGenerator::ABiomeGenerator()
 	NoisePowerValue = 2;
 	SeaLevel = -10;
 	bRegenerateMaps = false;
-	//static ConstructorHelpers::FClassFinder<UBlueprint> PrimitiveSphereBP(TEXT("/Blueprints/PrimitiveSphere"));
+	MinScale = 1;
+	MaxScale = 2;
 }
 
 // Called when the game starts or when spawned
@@ -39,9 +40,7 @@ void ABiomeGenerator::Tick(float DeltaTime)
 		int RowSize = ProceduralGeneratedMap->Height;
 		int ColSize = ProceduralGeneratedMap->Width;
 		
-		//GenerateSecondNoiseMap(RowSize, ColSize, ProceduralGeneratedMap->PerlinRoughness, ProceduralGeneratedMap->PerlinScale);
-
-		TestNoiseMapPositions(MapVerticies, ProceduralGeneratedMap->Width, ProceduralGeneratedMap->Height);
+		SpawnPlants(MapVerticies, ProceduralGeneratedMap->Width, ProceduralGeneratedMap->Height);
 		bRegenerateMaps = false;
 	}
 }
@@ -51,34 +50,17 @@ bool ABiomeGenerator::ShouldTickIfViewportsOnly() const
 	return true;
 }
 
-void ABiomeGenerator::GenerateSecondNoiseMap(int RowSize, int ColSize, float PerlinRoughness, float PerlinScale)
-{
-	float PerlinOffset = FMath::RandRange(-10000.0f, 10000.0f);
 
-	for (int X = 0; X < RowSize; X++)
-	{
-		for (int Y = 0; Y < ColSize; Y++)
-		{
-			float HeightVal = FMath::PerlinNoise2D(FVector2D(float(Y) * PerlinRoughness + PerlinOffset, float(X) * PerlinRoughness + PerlinOffset)) * PerlinScale;
-			SecondHeightMap.Add(HeightVal);
-		}
-	}
-}
-
-void ABiomeGenerator::GenerateTempuratureMap(TArray<FVector> Verticies)
-{
-
-}
-
-void ABiomeGenerator::CreateTempuraturePoints(TArray<FVector> Verticies)
-{
-
-}
-
-void ABiomeGenerator::TestNoiseMapPositions(TArray<FVector> Verticies, int Width, int Height)
+void ABiomeGenerator::SpawnPlants(TArray<FVector> Verticies, int Width, int Height)
 {
 	for (TActorIterator<APrimitiveObject> It(GetWorld()); It; ++It)
 	{
+		It->Destroy();
+	}
+
+	for (TActorIterator<APlantTerrainActor> It(GetWorld()); It; ++It)
+	{
+		UE_LOG(LogTemp, Warning, TEXT(">> Destroyed plant actor"))
 		It->Destroy();
 	}
 
@@ -89,33 +71,34 @@ void ABiomeGenerator::TestNoiseMapPositions(TArray<FVector> Verticies, int Width
 			if (CheckValidSlopePosition(Verticies, Width, Height, Row, Col))
 			{
 				FVector Location = Verticies[Row * Width + Col];
-				APrimitiveObject *PrimitiveSphere = GetWorld()->SpawnActor<APrimitiveObject>(Location, FRotator::ZeroRotator, FActorSpawnParameters());
-				DetermineBiomePrimitive(PrimitiveSphere, Location.Z, Location.Z);
-				SpawnedPrimitives.Add(PrimitiveSphere);
+				DetermineBiomeSpawn(Location);
 			}
 		}
 	}
 }
 
-void ABiomeGenerator::DetermineBiomePrimitive(APrimitiveObject* PrimitiveSphere, float NoisePointOne, float NoisePointTwo)
+
+void ABiomeGenerator::DetermineBiomeSpawn(FVector SpawnPosition)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("first: %f, secnd: %f"), NoisePointOne, NoisePointTwo);
 
-	//Show blue indicating sea level
-	if (NoisePointOne <= SeaLevel) {
-		PrimitiveSphere->SetMaterial(SeaLevelMaterial);
+	if (SpawnPosition.Z <= SeaLevel) {
+		UE_LOG(LogTemp, Warning, TEXT("This position is below sea level"));
 		return;
 	}
 
-	//Show light blue indicating high altitude
-	if (NoisePointOne >= MaxAltitude) {
-		PrimitiveSphere->SetMaterial(ColdMaterial);
-		//UE_LOG(LogTemp, Warning, TEXT("first: %f, secnd: %f"), NoisePointOne, NoisePointTwo);
+	if (SpawnPosition.Z >= MaxAltitude) {
+		UE_LOG(LogTemp, Warning, TEXT("This position is above max altitude"));
+		return;
 	}
-	else
-	{
-		PrimitiveSphere->SetMaterial(WarmMaterial);
-	}
+
+	//This will spawn the trees within the warm regions
+	if (TreeObject == NULL) return;
+	float RandScale = FMath::RandRange(MinScale, MaxScale);
+
+	APlantTerrainActor *TerrainPlant = GetWorld()->SpawnActor<APlantTerrainActor>(TreeObject, SpawnPosition, FRotator::ZeroRotator, FActorSpawnParameters());
+	TerrainPlant->SetScale(FVector(RandScale, RandScale, RandScale));
+	SpawnedTerrainFoliage.Add(TerrainPlant);
 }
 
 // Summary: like
@@ -180,7 +163,7 @@ bool ABiomeGenerator::CheckValidAngle(FVector CurrentNode, FVector ToRightNode, 
 	Direction.Normalize();
 	ForwardDirection.Normalize();
 
-	UE_LOG(LogTemp, Warning, TEXT("Identified Direction At: %f"), Direction.Z);
+	//UE_LOG(LogTemp, Warning, TEXT("Identified Direction At: %f"), Direction.Z);
 
 	//Checks for the angle between nodes in both positive and negative
 	bool RightDirectionCheck = Direction.Z < AllowedSlopeAngle && Direction.Z > AllowedSlopeAngle * -1.0f;
@@ -197,6 +180,7 @@ bool ABiomeGenerator::CheckValidAngle(FVector CurrentNode, FVector ToRightNode, 
 
 void ABiomeGenerator::ClearMaps()
 {
+	SpawnedTerrainFoliage.Empty();
 	SpawnedPrimitives.Empty();
 	InitialHeightMap.Empty();
 	SecondHeightMap.Empty();
