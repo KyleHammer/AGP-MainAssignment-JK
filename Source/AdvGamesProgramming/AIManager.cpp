@@ -107,7 +107,23 @@ void AAIManager::CreateAgents()
 	for (int32 i = 0; i < NumAI; i++)
 	{
 		int32 RandIndex = FMath::RandRange(0, AllNodes.Num() - 1);
-		AEnemyCharacter *Agent = GetWorld()->SpawnActor<AEnemyCharacter>(AgentToSpawn, AllNodes[RandIndex]->GetActorLocation(), FRotator(0.f, 0.f, 0.f));
+		FVector SpawnPosition = AllNodes[RandIndex]->GetActorLocation();
+		SpawnPosition.Z += 100;
+
+		AEnemyCharacter *Agent = GetWorld()->SpawnActor<AEnemyCharacter>(AgentToSpawn, SpawnPosition, FRotator(0.f, 0.f, 0.f));
+
+		if (AgentToSpawn == NULL)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Agent to Spawn is missing"));
+			return;
+		}
+
+		if (Agent == NULL) 
+		{
+			UE_LOG(LogTemp, Warning, TEXT("This is null"));
+			return;
+		}
+
 		Agent->Manager = this;
 		Agent->CurrentNode = AllNodes[RandIndex];
 		AllAgents.Add(Agent);
