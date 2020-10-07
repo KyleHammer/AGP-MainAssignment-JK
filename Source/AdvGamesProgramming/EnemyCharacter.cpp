@@ -26,6 +26,10 @@ AEnemyCharacter::AEnemyCharacter()
 	bIsDead = false;
 	bStartingInvestigation = false;
 	ResetStuckTimer();
+
+	// Turn off debug messages by default
+	bPrintStateMessages = false;
+	bPrintSensingMessages = false;
 }
 
 // Called when the game starts or when spawned
@@ -183,12 +187,15 @@ void AEnemyCharacter::SetState(AgentState NewState)
 		StateToString = "UNKNOWN";
 		break;
 	}
-		
-	// Print new state to the screen and ue_log
-	UE_LOG(LogTemp, Display, TEXT("Enemy States >> Switched to %s"), *StateToString);
 	
-	if(GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("State switched to " + StateToString));
+	if(bPrintStateMessages)
+	{
+		// Print new state to the screen and ue_log
+		UE_LOG(LogTemp, Display, TEXT("Enemy States >> Switched to %s"), *StateToString);
+	
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("State switched to " + StateToString));
+	}	
 }
 
 // Called to bind functionality to input
@@ -256,7 +263,7 @@ void AEnemyCharacter::AgentDead()
 		// Remove enemy perception upon their death
 		PerceptionComponent->OnTargetPerceptionUpdated.RemoveDynamic(this, &AEnemyCharacter::SensePlayer);
 		
-		if(GEngine)
+		if(GEngine && bPrintStateMessages)
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("ENEMY HAS DIED"));
 
 		PlayDeathAnimation();
@@ -434,7 +441,7 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		}
 		else
 		{
-			if(GEngine) {
+			if(GEngine && bPrintSensingMessages) {
 				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Player Seen"));
 			}
 			
@@ -443,7 +450,7 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 	}
 	else
 	{
-		if(GEngine)
+		if(GEngine && bPrintSensingMessages)
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Player Lost"));
 		
 		bCanSeeActor = false;
@@ -499,14 +506,17 @@ void AEnemyCharacter::ReduceStuckTimer()
 	StuckTimer -= GetWorld()->GetDeltaSeconds();
 
 	// Print stuck timer to the screen
-	if(GEngine)
+	if(GEngine && bPrintStateMessages)
 		GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::White, FString::Printf(TEXT("Stuck Timer: %f"), StuckTimer));
 	
 	if(StuckTimer <= 0.0f)
 	{
 		ResetStuckTimer();
-		
-		UE_LOG(LogTemp, Warning, TEXT("Stuck timer ran out, switching states"));
+
+		if(bPrintStateMessages)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Stuck timer ran out, switching states"));
+		}
 		
 		// Find the closest node to move to if stuck
 		if(CurrentAgentState != AgentState::MOVETOCLOSESTNODE)
@@ -558,9 +568,11 @@ void AEnemyCharacter::DetermineCuriosity()
 	{
 		CalculateCuriosity();
 		IsCurious = TotalCuriosity > CuriousityThreshold ? true : false;
-
-		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT(">> EnemyCharacter: Total Curiosity at = %f"), TotalCuriosity));
-		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::White, FString::Printf(TEXT(">> EnemyCharacter: Is Curious = %s"), IsCurious ? TEXT("True") : TEXT("False")));
+		if(bPrintSensingMessages)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT(">> EnemyCharacter: Total Curiosity at = %f"), TotalCuriosity));
+			GEngine->AddOnScreenDebugMessage(-1, 0, FColor::White, FString::Printf(TEXT(">> EnemyCharacter: Is Curious = %s"), IsCurious ? TEXT("True") : TEXT("False")));
+		}
 	}
 	else
 	{
@@ -576,7 +588,10 @@ void AEnemyCharacter::CalculateCuriosity()
 	float DotResult = FVector::DotProduct(GetActorForwardVector().GetSafeNormal(1), StimuliDirection.GetSafeNormal(1));
 
 	// Displays the dot product on screen (1 = Forward,  -1 = Back)
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("Dot Product: %f"), DotResult));
+	if(bPrintSensingMessages)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("Dot Product: %f"), DotResult));
+	}
 
 	if (DotResult <= 0)
 		return;
@@ -614,8 +629,11 @@ void AEnemyCharacter::DetermineThreat()
 		IsThreatened = TotalThreat > ThreatThreshold ? true : false;
 
 		//Prints messages to screen
-		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, FString::Printf(TEXT(">> EnemyCharacter: Total Threat at = %f"), TotalThreat));
-		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT(">> EnemyCharacter: Is Threat = %s"), IsThreatened ? TEXT("True") : TEXT("False")));
+		if(bPrintSensingMessages)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, FString::Printf(TEXT(">> EnemyCharacter: Total Threat at = %f"), TotalThreat));
+			GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT(">> EnemyCharacter: Is Threat = %s"), IsThreatened ? TEXT("True") : TEXT("False")));
+		}
 	}
 	else
 	{
