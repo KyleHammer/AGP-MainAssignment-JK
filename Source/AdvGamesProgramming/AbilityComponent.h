@@ -43,11 +43,11 @@ class ADVGAMESPROGRAMMING_API UAbilityComponent : public UActorComponent
 	AbilityType Ability;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 EffectivenessLevel;
+	int32 AbilityLevel;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float ManaPool;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float Persistence;
+	float AbilityPersistence;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float FireRate;
+	float AbilityFireRate;
 };

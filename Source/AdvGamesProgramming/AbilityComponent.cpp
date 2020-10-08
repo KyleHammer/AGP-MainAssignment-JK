@@ -34,10 +34,10 @@ void UAbilityComponent::OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler
 	Temperature = FMath::RandRange(-50, 150);
 	
 	//Assign the good or bad ability characteristics based on the result of the random boolean array.
-	EffectivenessLevel = (RandBoolArray[0] ? FMath::RandRange(5, 10) : FMath::RandRange(1, 5));
+	AbilityLevel = (RandBoolArray[0] ? FMath::RandRange(5, 10) : FMath::RandRange(1, 5));
 	ManaPool = (float)(RandBoolArray[1] ? FMath::RandRange(50, 100) : FMath::RandRange(10, 50));
-	Persistence = (RandBoolArray[2] ? FMath::RandRange(2.0f, 5.0f) : FMath::RandRange(0.3, 2.0f));
-	FireRate = (RandBoolArray[3] ? FMath::RandRange(0.01f, 0.25f) : FMath::RandRange(0.25f, 1.0f));
+	AbilityPersistence = (RandBoolArray[2] ? FMath::RandRange(2.0f, 5.0f) : FMath::RandRange(0.3, 2.0f));
+	AbilityFireRate = (RandBoolArray[3] ? FMath::RandRange(0.01f, 0.25f) : FMath::RandRange(0.25f, 1.0f));
 
 	//If the weapon is powerless, make it unable to use it's ability
 	//A powerless weapon will have it's fire ability strengthened
@@ -55,10 +55,10 @@ void UAbilityComponent::PrintAbilityStats()
 	if(GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Temperature: %d"), Temperature));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Effectiveness level %d"), EffectivenessLevel));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Effectiveness level %d"), AbilityLevel));
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Mana Pool: %f"), ManaPool));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Persistence: %f"), Persistence));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Fire Rate: %f"), FireRate)); 
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Persistence: %f"), AbilityPersistence));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Fire Rate: %f"), AbilityFireRate)); 
 	}
 }
 
