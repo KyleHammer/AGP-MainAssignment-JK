@@ -63,7 +63,7 @@ void AWeaponPickup::OnGenerate()
 	MuzzleVelocity = (RandBoolArray[1] ? FMath::RandRange(10000.0f, 20000.0f) : FMath::RandRange(5000.0f, 10000.0f));
 	MagazineSize = (RandBoolArray[2] ? FMath::RandRange(20, 100) : FMath::RandRange(1, 20));
 	WeaponAccuracy = (RandBoolArray[3] ? FMath::RandRange(100.0f, 1000.0f) : FMath::RandRange(20.0f, 80.0f));
-	FireRate = (RandBoolArray[4] ? FMath::RandRange(0.01f, 0.25f) : FMath::RandRange(0.25f, 1.0f));
+	FireRate = (RandBoolArray[4] ? FMath::RandRange(0.05f, 0.25f) : FMath::RandRange(0.25f, 1.0f));
 
 	//If the weapon is cursed, make it unable to fire
 	//A cursed weapon will have it's ability strengthened
@@ -83,11 +83,11 @@ void AWeaponPickup::PrintWeaponStats()
 {
 	if(GEngine && bPrintWeaponStats)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Bullet Damage: %f"), BulletDamage));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Muzzle Velocity: %f"), MuzzleVelocity));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Magazine Size: %d"), MagazineSize));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Weapon Accuracy: %f"), WeaponAccuracy));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Fire Rate: %f"), FireRate));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, FString::Printf(TEXT("Bullet Damage: %f"), BulletDamage));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, FString::Printf(TEXT("Muzzle Velocity: %f"), MuzzleVelocity));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, FString::Printf(TEXT("Magazine Size: %d"), MagazineSize));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, FString::Printf(TEXT("Weapon Accuracy: %f"), WeaponAccuracy));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, FString::Printf(TEXT("Fire Rate: %f"), FireRate));
 		AbilityComponent->PrintAbilityStats();
 	}
 	

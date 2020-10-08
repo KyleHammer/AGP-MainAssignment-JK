@@ -31,6 +31,7 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADVGAMESPROGRAMMING_API UAbilityComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	
 	public:
 
 	void PrintAbilityStats();
@@ -50,4 +51,10 @@ class ADVGAMESPROGRAMMING_API UAbilityComponent : public UActorComponent
 	float AbilityPersistence;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float AbilityFireRate;
+
+	private:
+
+	FString AbilityString;
+	void DetermineAbilityType();
+	void SetAbilityString();
 };

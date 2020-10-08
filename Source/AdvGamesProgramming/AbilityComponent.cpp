@@ -32,18 +32,66 @@ void UAbilityComponent::OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler
 
 	//Temperature is kept separate from the good and bad characteristics
 	Temperature = FMath::RandRange(-50, 150);
+
+	DetermineAbilityType();
 	
 	//Assign the good or bad ability characteristics based on the result of the random boolean array.
 	AbilityLevel = (RandBoolArray[0] ? FMath::RandRange(5, 10) : FMath::RandRange(1, 5));
 	ManaPool = (float)(RandBoolArray[1] ? FMath::RandRange(50, 100) : FMath::RandRange(10, 50));
 	AbilityPersistence = (RandBoolArray[2] ? FMath::RandRange(2.0f, 5.0f) : FMath::RandRange(0.3, 2.0f));
-	AbilityFireRate = (RandBoolArray[3] ? FMath::RandRange(0.01f, 0.25f) : FMath::RandRange(0.25f, 1.0f));
+	AbilityFireRate = (RandBoolArray[3] ? FMath::RandRange(0.05f, 0.25f) : FMath::RandRange(0.25f, 1.0f));
 
 	//If the weapon is powerless, make it unable to use it's ability
 	//A powerless weapon will have it's fire ability strengthened
 	if(Rarity == WeaponPickupRarity::POWERLESS)
 	{
 		ManaPool = 0;
+	}
+}
+
+void UAbilityComponent::DetermineAbilityType()
+{
+	if(Temperature <= 0)
+	{
+		Ability = AbilityType::ICE;
+	}
+	else if(Temperature <= 50)
+	{
+		Ability = AbilityType::WATER;
+	}
+	else if(Temperature <= 100)
+	{
+		Ability = AbilityType::STEAM;
+	}
+	else
+	{
+		Ability = AbilityType::FIRE;
+	}
+
+	SetAbilityString();
+}
+
+void UAbilityComponent::SetAbilityString()
+{
+	if(Ability == AbilityType::ICE)
+	{
+		AbilityString = "ICE";
+	}
+	else if(Ability == AbilityType::WATER)
+	{
+		AbilityString = "WATER";
+	}
+	else if(Ability == AbilityType::STEAM)
+	{
+		AbilityString = "STEAM";
+	}
+	else if(Ability == AbilityType::FIRE)
+	{
+		AbilityString = "FIRE";
+	}
+	else
+	{
+		AbilityString = "ERROR, UNKNOWN ABILITY TYPE";
 	}
 }
 
@@ -54,11 +102,12 @@ void UAbilityComponent::PrintAbilityStats()
 {
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Temperature: %d"), Temperature));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Effectiveness level %d"), AbilityLevel));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Mana Pool: %f"), ManaPool));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Persistence: %f"), AbilityPersistence));
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, FString::Printf(TEXT("Fire Rate: %f"), AbilityFireRate)); 
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Magenta, FString::Printf(TEXT("Temperature: %d"), Temperature));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Magenta, FString::Printf(TEXT("Effectiveness level %d"), AbilityLevel));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Magenta, FString::Printf(TEXT("Mana Pool: %f"), ManaPool));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Magenta, FString::Printf(TEXT("Persistence: %f"), AbilityPersistence));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Magenta, FString::Printf(TEXT("Fire Rate: %f"), AbilityFireRate));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Purple, FString::Printf(TEXT("ABILITY TYPE: %s"), *AbilityString));
 	}
 }
 
