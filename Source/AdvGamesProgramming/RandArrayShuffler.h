@@ -16,5 +16,5 @@ class ADVGAMESPROGRAMMING_API URandArrayShuffler : public UActorComponent
     GENERATED_BODY()
     
     public:
-    void GenerateRandBooleanArray(int32 ArrayLength, int32 NumTrue, TArray<bool>& RandBoolArray);
+    TArray<bool> GenerateRandBooleanArray(int32 ArrayLength, int32 NumTrue);
 };

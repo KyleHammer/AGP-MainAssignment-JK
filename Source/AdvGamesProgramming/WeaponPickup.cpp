@@ -2,49 +2,60 @@
 
 #include "WeaponPickup.h"
 #include "Kismet/KismetArrayLibrary.h"
+#include "Engine/Engine.h"
 
+/**
+* Generates the rarity values of the weapons using a series of RandRange() statements.
+* Stats to the weapon are then allocated based on the rarity.
+*/
 void AWeaponPickup::OnGenerate()
 {
 	APickup::OnGenerate();
 
-	//Find components for the abilities and shuffler algortihm
+	//Find components for the abilities and shuffler algorithm
 	AbilityComponent = FindComponentByClass<UAbilityComponent>();
 	Shuffler = FindComponentByClass<URandArrayShuffler>();
-	
-	//Pick a weapon rarity tier:
-	
+
+	//Value that is used to determine the rarity value
 	int32 RandomRarityValue = FMath::RandRange(1, 100);
 	//Will populate the RandBoolArray with a shuffled set of boolean values depending on the weapon rarity.
 	TArray<bool> RandBoolArray;
+
+	//Pick a weapon rarity tier:
 	if (RandomRarityValue <= 4)
 	{
 		Rarity = WeaponPickupRarity::LEGENDARY;
-		Shuffler->GenerateRandBooleanArray(5, 5, RandBoolArray);
+		RandBoolArray = Shuffler->GenerateRandBooleanArray(5, 5);
 	}
 	else if (RandomRarityValue <= 14)
 	{
 		Rarity = WeaponPickupRarity::MASTERFUL;
-		Shuffler->GenerateRandBooleanArray(5, FMath::RandRange(3, 4), RandBoolArray);
+		RandBoolArray = Shuffler->GenerateRandBooleanArray(5, FMath::RandRange(3, 4));
 	}
 	else if (RandomRarityValue <= 29)
 	{
 		Rarity = WeaponPickupRarity::STAUNCH;
-		Shuffler->GenerateRandBooleanArray(5, 4, RandBoolArray);
+		RandBoolArray = Shuffler->GenerateRandBooleanArray(5, 4);
 	}
 	else if (RandomRarityValue <= 44)
 	{
 		Rarity = WeaponPickupRarity::TABOO;
-		Shuffler->GenerateRandBooleanArray(5, 0, RandBoolArray);
+		RandBoolArray = Shuffler->GenerateRandBooleanArray(5, 0);
 	}
 	else if (RandomRarityValue <= 52)
 	{
 		Rarity = WeaponPickupRarity::CURSED;
-		Shuffler->GenerateRandBooleanArray(5, 0, RandBoolArray);
+		RandBoolArray = Shuffler->GenerateRandBooleanArray(5, 0);
 	}
 	else if(RandomRarityValue <= 60)
 	{
 		Rarity = WeaponPickupRarity::POWERLESS;
-		Shuffler->GenerateRandBooleanArray(5, 5, RandBoolArray);
+		RandBoolArray = Shuffler->GenerateRandBooleanArray(5, 5);
+	}
+	else
+	{
+		Rarity = WeaponPickupRarity::COMMON;
+		RandBoolArray = Shuffler->GenerateRandBooleanArray(5, 0);
 	}
 	
 	//Assign the good or bad weapon characteristics based on the result of the random boolean array.
@@ -62,4 +73,22 @@ void AWeaponPickup::OnGenerate()
 	}
 
 	AbilityComponent->OnGenerate(Rarity, Shuffler);
+}
+
+/**
+* Prints out the weapon stats to the screen if called by WeaponPickup, then calls PrintAbilityStats to print
+* ability stats too. Does not print if bPrintWeaponStats is false
+*/
+void AWeaponPickup::PrintWeaponStats()
+{
+	if(GEngine && bPrintWeaponStats)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Bullet Damage: %f"), BulletDamage));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Muzzle Velocity: %f"), MuzzleVelocity));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Magazine Size: %d"), MagazineSize));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Weapon Accuracy: %f"), WeaponAccuracy));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Fire Rate: %f"), FireRate));
+		AbilityComponent->PrintAbilityStats();
+	}
+	
 }

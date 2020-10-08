@@ -8,14 +8,18 @@
 #include "Components/ActorComponent.h"
 #include "AbilityComponent.generated.h"
 
-// A randomly generated value known as temperature determines the ability type
+//A randomly generated value known as temperature determines the ability type
 UENUM(BlueprintType)
 enum class AbilityType : uint8
 {
-	ICE, // Creates an ice wall
-    WATER, // Creates a water spout, slowing those who enter
-    STEAM, // Creates a healing stream of steam
-    FIRE // Creates a damaging field of fire
+	//ICE: Creates an ice wall
+	ICE,
+	//WATER: Creates a water spout, slowing those who enter
+    WATER,
+	//STEAM: Creates a healing stream of steam
+    STEAM,
+	//FIRE: Creates a damaging field of fire
+    FIRE 
 };
 
 /**
@@ -29,6 +33,7 @@ class ADVGAMESPROGRAMMING_API UAbilityComponent : public UActorComponent
 	GENERATED_BODY()
 	public:
 
+	void PrintAbilityStats();
 	UFUNCTION(BlueprintCallable)
     void OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler* Shuffler);
 
@@ -40,7 +45,7 @@ class ADVGAMESPROGRAMMING_API UAbilityComponent : public UActorComponent
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 EffectivenessLevel;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 ManaPool;
+	float ManaPool;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float Persistence;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
