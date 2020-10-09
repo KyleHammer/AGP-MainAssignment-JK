@@ -1,15 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilityComponent.h"
+
+#include "BiomeGenerator.h"
 #include "Kismet/KismetArrayLibrary.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "EngineUtils.h"
 
 /**
 * Used to assign an ability level based on what's passed in from WeaponPickup
 * @WeaponPickupRarity Rarity: An enum of type WeaponPickupRarity that determines the ability level
 * @URandArrayShuffler* Shuffler: The shuffling script that determines which stats are good and bad
 */
-void UAbilityComponent::OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler* Shuffler)
+void UAbilityComponent::OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler* Shuffler, float WeaponSpawnHeight)
 {
 	//Will populate the RandBoolArray with a shuffled set of boolean values depending on the ability rarity.
 	TArray<bool> RandBoolArray;
@@ -30,9 +34,37 @@ void UAbilityComponent::OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler
 		RandBoolArray = Shuffler->GenerateRandBooleanArray(4, 0);
 	}
 
-	//Temperature is kept separate from the good and bad characteristics
-	Temperature = FMath::RandRange(-50, 150);
+	//Find the biome generator if there is one
+	for (TActorIterator<ABiomeGenerator> It(GetWorld()); It; ++It)
+	{
+		BiomeGenerator = *It;
+	}
 
+	//Temperature is kept separate from the good and bad characteristics
+	if(BiomeGenerator != nullptr)
+	{
+		if(WeaponSpawnHeight >= BiomeGenerator->MaxAltitude)
+		{
+			// Higher biomes are colder, spawn ice and water weapons
+			Temperature = FMath::RandRange(-50, 25);
+		}
+		else if (WeaponSpawnHeight <= BiomeGenerator->SeaLevel)
+		{
+			// Lower biomes are warmer, spawn fire and steam weapons
+			Temperature = FMath::RandRange(75, 150);
+		}
+		else
+		{
+			// Other heights are more likely to spawn steam and water weapons
+			Temperature = FMath::RandRange(-25, 125);
+		}
+	}
+	else
+	{
+		Temperature = FMath::RandRange(-50, 150);
+		UE_LOG(LogTemp, Error, TEXT("Weapon could not find biome generator, assigning random temperature values instead"))
+	}
+		
 	DetermineAbilityType();
 	
 	//Assign the good or bad ability characteristics based on the result of the random boolean array.

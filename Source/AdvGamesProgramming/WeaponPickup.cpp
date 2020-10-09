@@ -72,7 +72,7 @@ void AWeaponPickup::OnGenerate()
 		MagazineSize = 0;
 	}
 
-	AbilityComponent->OnGenerate(Rarity, Shuffler);
+	AbilityComponent->OnGenerate(Rarity, Shuffler, GetActorLocation().Z);
 }
 
 /**

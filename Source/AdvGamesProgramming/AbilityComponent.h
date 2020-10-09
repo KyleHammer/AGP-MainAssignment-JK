@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "BiomeGenerator.h"
 #include "CoreMinimal.h"
 #include "WeaponPickup.h"
 #include "RandArrayShuffler.h"
@@ -36,7 +37,7 @@ class ADVGAMESPROGRAMMING_API UAbilityComponent : public UActorComponent
 
 	void PrintAbilityStats();
 	UFUNCTION(BlueprintCallable)
-    void OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler* Shuffler);
+    void OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler* Shuffler, float WeaponSpawnHeight);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Temperature;
@@ -53,6 +54,7 @@ class ADVGAMESPROGRAMMING_API UAbilityComponent : public UActorComponent
 	float AbilityFireRate;
 
 	private:
+	ABiomeGenerator* BiomeGenerator;
 
 	FString AbilityString;
 	void DetermineAbilityType();
