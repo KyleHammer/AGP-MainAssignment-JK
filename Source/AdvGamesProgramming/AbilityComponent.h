@@ -41,7 +41,7 @@ class ADVGAMESPROGRAMMING_API UAbilityComponent : public UActorComponent
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Temperature;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	AbilityType Ability;
+	AbilityType CurrentAbilityType;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 AbilityLevel;

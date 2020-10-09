@@ -88,7 +88,7 @@ TArray<ANavigationNode *> AAIManager::GeneratePath(ANavigationNode *StartNode, A
 	}
 
 	//If it leaves this loop without finding the end node then return an empty path.
-	UE_LOG(LogTemp, Error, TEXT("NO PATH FOUND"));
+	//UE_LOG(LogTemp, Error, TEXT("NO PATH FOUND"));
 	return TArray<ANavigationNode *>();
 }
 
@@ -268,7 +268,7 @@ ANavigationNode *AAIManager::FindNearestNode(const FVector &Location)
 			NearestNode = CurrentNode;
 		}
 	}
-	UE_LOG(LogTemp, Error, TEXT("Nearest Node: %s"), *NearestNode->GetName())
+	//UE_LOG(LogTemp, Error, TEXT("Nearest Node: %s"), *NearestNode->GetName())
 	return NearestNode;
 }
 
@@ -287,6 +287,6 @@ ANavigationNode *AAIManager::FindFurthestNode(const FVector &Location)
 		}
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("Furthest Node: %s"), *FurthestNode->GetName())
+	//UE_LOG(LogTemp, Error, TEXT("Furthest Node: %s"), *FurthestNode->GetName())
 	return FurthestNode;
 }

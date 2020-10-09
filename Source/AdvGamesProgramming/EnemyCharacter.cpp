@@ -436,7 +436,9 @@ void AEnemyCharacter::SensePlayer(AActor* SensedActor, FAIStimulus Stimulus)
 		//Checks if stimulus contains tag gun
 		if(Stimulus.Tag.ToString() == "Gun")
 		{
-			UE_LOG(LogTemp, Display, TEXT("Stimulus: %s"), Stimulus.Tag.ToString().Contains("Gun") ? TEXT("True") : TEXT("False"));
+			if(bPrintSensingMessages)
+				UE_LOG(LogTemp, Display, TEXT("Stimulus: %s"), Stimulus.Tag.ToString().Contains("Gun") ? TEXT("True") : TEXT("False"));
+			
 			ProcessSoundEvent(Stimulus);
 		}
 		else
@@ -684,8 +686,11 @@ void AEnemyCharacter::ProcessSoundEvent(FAIStimulus Stimulus)
 		TotalCuriosity += 30;
 
 		//Prints message to the output log
-		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound is a gun"))
-		UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound location at x:%f, y:%f"), Stimulus.StimulusLocation.X, Stimulus.StimulusLocation.Y)
+		if(bPrintSensingMessages)
+		{
+			UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound is a gun"))
+			UE_LOG(LogTemp, Display, TEXT(">> Enemy Character: Sound location at x:%f, y:%f"), Stimulus.StimulusLocation.X, Stimulus.StimulusLocation.Y)
+		}
 	}
 }
 

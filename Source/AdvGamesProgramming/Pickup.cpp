@@ -44,7 +44,7 @@ void APickup::OnGenerate()
 void APickup::OnEnterPickup(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
     //UE_LOG(LogTemp, Warning, TEXT("Overlapped Component: %s \nOther Actor: %s\nOtherComponent: %s\n"), *OverlappedComponent->GetOwner()->GetName(), *OtherActor->GetName(), *OtherComponent->GetOwner()->GetName());
-    UE_LOG(LogTemp, Warning, TEXT("Overlap Event"))
+    //UE_LOG(LogTemp, Warning, TEXT("Overlap Event"))
     OnPickup(OtherActor);
     //Destroy();
 }

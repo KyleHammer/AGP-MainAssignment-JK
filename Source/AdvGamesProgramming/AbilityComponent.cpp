@@ -53,19 +53,19 @@ void UAbilityComponent::DetermineAbilityType()
 {
 	if(Temperature <= 0)
 	{
-		Ability = AbilityType::ICE;
+		CurrentAbilityType = AbilityType::ICE;
 	}
 	else if(Temperature <= 50)
 	{
-		Ability = AbilityType::WATER;
+		CurrentAbilityType = AbilityType::WATER;
 	}
 	else if(Temperature <= 100)
 	{
-		Ability = AbilityType::STEAM;
+		CurrentAbilityType = AbilityType::STEAM;
 	}
 	else
 	{
-		Ability = AbilityType::FIRE;
+		CurrentAbilityType = AbilityType::FIRE;
 	}
 
 	SetAbilityString();
@@ -73,19 +73,19 @@ void UAbilityComponent::DetermineAbilityType()
 
 void UAbilityComponent::SetAbilityString()
 {
-	if(Ability == AbilityType::ICE)
+	if(CurrentAbilityType == AbilityType::ICE)
 	{
 		AbilityString = "ICE";
 	}
-	else if(Ability == AbilityType::WATER)
+	else if(CurrentAbilityType == AbilityType::WATER)
 	{
 		AbilityString = "WATER";
 	}
-	else if(Ability == AbilityType::STEAM)
+	else if(CurrentAbilityType == AbilityType::STEAM)
 	{
 		AbilityString = "STEAM";
 	}
-	else if(Ability == AbilityType::FIRE)
+	else if(CurrentAbilityType == AbilityType::FIRE)
 	{
 		AbilityString = "FIRE";
 	}
