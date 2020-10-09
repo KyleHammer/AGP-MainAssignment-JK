@@ -41,6 +41,10 @@ void UHealthComponent::OnTakeDamage(float Damage)
 		CurrentHealth = 0;
 		OnDeath();
 	}
+	else if(CurrentHealth > MaxHealth)
+	{
+		CurrentHealth = MaxHealth;
+	}
 }
 
 void UHealthComponent::OnDeath()
