@@ -20,7 +20,7 @@ enum class AbilityType : uint8
 	//STEAM: Creates a healing stream of steam
     STEAM,
 	//FIRE: Creates a damaging field of fire
-    FIRE 
+    FIRE
 };
 
 /**
