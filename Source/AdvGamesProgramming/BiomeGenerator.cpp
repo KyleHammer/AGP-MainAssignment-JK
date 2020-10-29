@@ -43,6 +43,16 @@ void ABiomeGenerator::Tick(float DeltaTime)
 		
 		bRegenerateMaps = false;
 	}
+
+	if (bGenerateSecondNoise)
+	{
+		ClearOverlayNoise();
+
+		int Height = ProceduralGeneratedMap->Height;
+		int Width = ProceduralGeneratedMap->Width;
+		GenerateSecondaryNoiseMap(Width, Height);
+		bGenerateSecondNoise = false;
+	}
 }
 
 // Summary: Ensures that the class can run on viewport in editor
@@ -73,11 +83,15 @@ void ABiomeGenerator::SpawnPlants(TArray<FVector> Verticies, int Width, int Heig
 		{
 			if (CheckValidSlopePosition(Verticies, Width, Height, Row, Col))
 			{
-				FVector Location = Verticies[Row * Width + Col];
+				if (OverlaySecondaryMap(Width, Row, Col)) 
+				{
+					FVector Location = Verticies[Row * Width + Col];
 
-				if (bGenerateTestSpheres)
-					SpawnTestPrimitives(Location);
-				if (bGenerateFoliage) DetermineBiomeSpawn(Location);
+					if (bGenerateTestSpheres)
+						SpawnTestPrimitives(Location);
+					if (bGenerateFoliage)
+						DetermineBiomeSpawn(Location);
+				}	
 			}
 		}
 	}
@@ -107,6 +121,26 @@ void ABiomeGenerator::DetermineBiomeSpawn(FVector SpawnPosition)
 	APlantTerrainActor *TerrainPlant = GetWorld()->SpawnActor<APlantTerrainActor>(TreeObject, SpawnPosition, FRotator::ZeroRotator, FActorSpawnParameters());
 	TerrainPlant->SetScale(FVector(RandScale, RandScale, RandScale));
 	SpawnedTerrainFoliage.Add(TerrainPlant);
+}
+
+void ABiomeGenerator::GenerateSecondaryNoiseMap(int Width, int Height)
+{
+	float PerlinOffset = FMath::RandRange(-10000.0f, 10000.0f);
+
+	for (int Row = 0; Row < Height; Row++)
+	{
+		for (int Col = 0; Col < Width; Col++)
+		{
+			float HeightVal = FMath::PerlinNoise2D(FVector2D(float(Col) * PerlinRoughness + PerlinOffset, float(Row) * PerlinRoughness + PerlinOffset)) * PerlinScale;
+			SecondNoiseArray.Add(HeightVal);
+			UE_LOG(LogTemp, Warning, TEXT("Noise Point At: %f"), HeightVal);
+		}
+	}
+}
+
+bool ABiomeGenerator::OverlaySecondaryMap(int Width, int Row, int Col)
+{
+	return SecondNoiseArray[Row * Width + Col] > NoiseThreshold;
 }
 
 // Summary: Returns boolean if the specifies position is not too steep
@@ -153,7 +187,8 @@ bool ABiomeGenerator::CheckValidSlopePosition(TArray<FVector> Verticies, int Wid
 		//Top edge case
 		return CheckValidAngle(Verticies[Row * Width + Col], Verticies[Row * Width + (Col + 1)], Verticies[(Row + 1) * Width + Col]);
 	}
-	else {
+	else
+	{
 		if (CheckValidAngle(Verticies[Row * Width + Col], Verticies[Row * Width + (Col + 1)], Verticies[(Row - 1) * Width + Col]))
 		{
 			return CheckValidAngle(Verticies[Row * Width + Col], Verticies[Row * Width + (Col - 1)], Verticies[(Row + 1) * Width + Col]);
@@ -204,7 +239,7 @@ void ABiomeGenerator::SpawnTestPrimitives(FVector SpawnPosition)
 		PrimitiveSphere->SetMaterial(ColdMaterial);
 		return;
 	}
-	else 
+	else
 	{
 		PrimitiveSphere->SetMaterial(WarmMaterial);
 	}
@@ -218,5 +253,10 @@ void ABiomeGenerator::ClearMaps()
 {
 	SpawnedTerrainFoliage.Empty();
 	SpawnedPrimitives.Empty();
+}
+
+void ABiomeGenerator::ClearOverlayNoise()
+{
+	SecondNoiseArray.Empty();
 }
 

@@ -19,6 +19,21 @@ public:
 	// Sets default values for this actor's properties
 	ABiomeGenerator();
 
+	UPROPERTY(VisibleAnywhere, Category = "Biome Noise Generation")
+	TArray<int32> SecondNoiseArray;
+
+	UPROPERTY(EditAnywhere, Category = "Biome Noise Generation")
+	float NoiseThreshold;
+
+	UPROPERTY(EditAnywhere, Category = "Biome Noise Generation")
+	float PerlinScale;
+
+	UPROPERTY(EditAnywhere, Category = "Biome Noise Generation")
+	float PerlinRoughness;
+
+	UPROPERTY(EditAnywhere, Category = "Biome Noise Generation")
+	bool bGenerateSecondNoise;
+
 	// Stores test primitives
 	TArray<AActor*> SpawnedPrimitives;
 
@@ -58,6 +73,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool bGenerateFoliage; //When true renders the foliage
+
+	UPROPERTY(EditAnywhere)
+	bool bIncludeSecondaryVariation;
 
 	UPROPERTY(EditAnywhere)
 	bool bGenerateTestSpheres; //When true renders the biome spheres
@@ -100,10 +118,12 @@ public:
 	
 	void SpawnTestPrimitives(FVector SpawnPosition);
 	void DetermineBiomeSpawn(FVector SpawnPosition);
+	void GenerateSecondaryNoiseMap(int Width, int Height);
+	bool OverlaySecondaryMap(int Width, int Row, int Col);
 
 	bool CheckValidSlopePosition(TArray<FVector> Verticies, int Width, int Height, int Row, int Col);
 	bool CheckValidAngle(FVector CurrentNode, FVector ToRightNode, FVector ToForwardNode);
 
 	void ClearMaps();
-
+	void ClearOverlayNoise();
 };
