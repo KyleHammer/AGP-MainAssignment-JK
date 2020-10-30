@@ -3,6 +3,7 @@
 #include "WeaponPickup.h"
 #include "Kismet/KismetArrayLibrary.h"
 #include "Engine/Engine.h"
+#include "Net/UnrealNetwork.h"
 
 /**
 * Generates the rarity values of the weapons using a series of RandRange() statements.
@@ -91,4 +92,16 @@ void AWeaponPickup::PrintWeaponStats()
 		AbilityComponent->PrintAbilityStats();
 	}
 	
+}
+
+void AWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeaponPickup, Rarity);
+	DOREPLIFETIME(AWeaponPickup, BulletDamage);
+	DOREPLIFETIME(AWeaponPickup, MuzzleVelocity);
+	DOREPLIFETIME(AWeaponPickup, MagazineSize);
+	DOREPLIFETIME(AWeaponPickup, WeaponAccuracy);
+	DOREPLIFETIME(AWeaponPickup, FireRate);
 }

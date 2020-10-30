@@ -7,6 +7,7 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "Net/UnrealNetwork.h"
 
 /**
 * Used to assign an ability level based on what's passed in from WeaponPickup
@@ -142,4 +143,18 @@ void UAbilityComponent::PrintAbilityStats()
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Purple, FString::Printf(TEXT("ABILITY TYPE: %s"), *AbilityString));
 	}
 }
+
+void UAbilityComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UAbilityComponent, CurrentAbilityType);
+	DOREPLIFETIME(UAbilityComponent, Temperature);
+	DOREPLIFETIME(UAbilityComponent, AbilityLevel);
+	DOREPLIFETIME(UAbilityComponent, ManaPool);
+	DOREPLIFETIME(UAbilityComponent, AbilityPersistence);
+	DOREPLIFETIME(UAbilityComponent, AbilityFireRate);
+}
+
+
 
