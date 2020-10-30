@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BiomeGenerator.h"
+#include "ProcedurallyGeneratedMap.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -40,7 +40,6 @@ void ABiomeGenerator::Tick(float DeltaTime)
 		int ColSize = ProceduralGeneratedMap->Width;
 
 		SpawnPlants(MapVerticies, ProceduralGeneratedMap->Width, ProceduralGeneratedMap->Height);
-		
 		bRegenerateMaps = false;
 	}
 
@@ -91,7 +90,15 @@ void ABiomeGenerator::SpawnPlants(TArray<FVector> Verticies, int Width, int Heig
 						SpawnTestPrimitives(Location);
 					if (bGenerateFoliage)
 						DetermineBiomeSpawn(Location);
-				}	
+
+					ValidAvailablePositions.Add(false);
+				}
+				else {
+					ValidAvailablePositions.Add(true);
+				}
+			} 
+			else {
+				ValidAvailablePositions.Add(true);
 			}
 		}
 	}

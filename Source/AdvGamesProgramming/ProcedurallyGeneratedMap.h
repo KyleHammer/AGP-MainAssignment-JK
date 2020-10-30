@@ -8,8 +8,11 @@
 #include "ProceduralMeshComponent.h"
 #include "WallActor.h"
 #include "AIManager.h"
+#include "BiomeGenerator.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "ProcedurallyGeneratedMap.generated.h"
+
+class ABiomeGenerator;
 
 UCLASS()
 class ADVGAMESPROGRAMMING_API AProcedurallyGeneratedMap : public AActor
@@ -41,8 +44,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Wall Generation")
 	bool bGenerateWalls;
 
+	UPROPERTY(EditAnywhere)
+	ABiomeGenerator* BiomeGenerator;
+
 	UPROPERTY(VisibleAnywhere)
-	UProceduralMeshComponent *MeshComponent;
+	UProceduralMeshComponent* MeshComponent;
 
 	UPROPERTY(EditAnywhere)
 	int32 Width;
@@ -80,10 +86,14 @@ public:
 	void ClearMap();
 
 	void GenerateWalls();
+	void GenerateAINodes();
 	void ClearWalls();
 
 	UPROPERTY(EditAnywhere)
 	bool bRegenerateMap;
+
+	UPROPERTY(EditAnywhere)
+	bool bGenerateAINodes;
 
 	UPROPERTY(EditAnywhere)
 	AAIManager *AIManager;

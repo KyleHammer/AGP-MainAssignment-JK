@@ -34,6 +34,9 @@ public:
 	TArray<AEnemyCharacter*> AllAgents;
 	UPROPERTY(EditAnywhere, Category = "Agents")
 	TSubclassOf<AEnemyCharacter> AgentToSpawn;
+	
+	UPROPERTY(VisibleAnywhere)
+	TArray<bool> ValidNodes;
 
 	TArray<ANavigationNode*> GeneratePath(ANavigationNode* StartNode, ANavigationNode* EndNode);
 
@@ -53,7 +56,7 @@ public:
 	void PopulateNodes();
 	void CreateAgents();
 
-	void GenerateNodes(const TArray<FVector> &Vertices, int32 Width, int32 Height);
+	void GenerateNodes(const TArray<FVector> &Vertices, const TArray<bool> &ValidPositions, int32 Width, int32 Height);
 	void AddConnection(ANavigationNode *FromNode, ANavigationNode *ToNode);
 	UPROPERTY(EditAnywhere)
 	float AllowedAngle;

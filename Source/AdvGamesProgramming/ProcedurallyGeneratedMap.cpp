@@ -3,7 +3,17 @@
 
 #include "ProcedurallyGeneratedMap.h"
 #include "UObject/ConstructorHelpers.h"
+#include "BiomeGenerator.h"
 #include "EngineUtils.h"
+
+// ---------------------------------------
+// 	GENERATING MAPS:
+//	1. Generate the procedural map first
+//	2. Generate the biome map second
+//  3. Generate the AI nodes last
+//
+// ---------------------------------------
+
 
 // Sets default values
 AProcedurallyGeneratedMap::AProcedurallyGeneratedMap()
@@ -15,13 +25,14 @@ AProcedurallyGeneratedMap::AProcedurallyGeneratedMap()
 	PerlinScale = 1000.0f;
 	PerlinRoughness = 0.1f;
 	bRegenerateMap = false;
+	bGenerateWalls = false;
+	bGenerateAINodes = false;
 }
 
 // Called when the game starts or when spawned
 void AProcedurallyGeneratedMap::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -41,6 +52,12 @@ void AProcedurallyGeneratedMap::Tick(float DeltaTime)
 	{
 		GenerateWalls();
 		bGenerateWalls = false;
+	}
+
+	if (bGenerateAINodes)
+	{
+		GenerateAINodes();
+		bGenerateAINodes = false;
 	}
 }
 
@@ -81,10 +98,19 @@ void AProcedurallyGeneratedMap::GenerateMap()
 	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, UVCoords, Normals, Tangents);
 
 	MeshComponent->CreateMeshSection(0, Vertices, Triangles, Normals, UVCoords, TArray<FColor>(), Tangents, true);
+}
+
+void AProcedurallyGeneratedMap::GenerateAINodes()
+{
+	if(BiomeGenerator->ValidAvailablePositions.Num() == 0) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT(">>PROCEDURALLYGENERATEDMAP: Generate Biomes First"));
+		return;
+	}
 
 	if (AIManager)
 	{
-		AIManager->GenerateNodes(Vertices, Width, Height);
+		AIManager->GenerateNodes(Vertices, BiomeGenerator->ValidAvailablePositions, Width, Height);
 	}
 }
 

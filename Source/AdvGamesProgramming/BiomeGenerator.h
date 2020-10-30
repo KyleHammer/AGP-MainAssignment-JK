@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProcedurallyGeneratedMap.h"
+//#include "ProcedurallyGeneratedMap.h"
 #include "GameFramework/Actor.h"
 #include "Materials/Material.h"
 #include "PrimitiveObject.h"
 #include "PlantTerrainActor.h"
 #include "BiomeGenerator.generated.h"
+
+class AProcedurallyGeneratedMap;
 
 UCLASS()
 class ADVGAMESPROGRAMMING_API ABiomeGenerator : public AActor
@@ -33,6 +35,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Biome Noise Generation")
 	bool bGenerateSecondNoise;
+
+	//This indicates areas where the map is not being occupied by an obstructive object
+	UPROPERTY(VisibleAnywhere)
+	TArray<bool> ValidAvailablePositions;
 
 	// Stores test primitives
 	TArray<AActor*> SpawnedPrimitives;
