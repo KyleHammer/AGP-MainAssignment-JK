@@ -38,6 +38,8 @@ public:
 	void SprintStart();
 	void SprintEnd();
 
+	class UHealthComponent* HealthComponent;
+
 	/**
 	 * Will adjust the movement speed of the server character to sprinting
 	 */

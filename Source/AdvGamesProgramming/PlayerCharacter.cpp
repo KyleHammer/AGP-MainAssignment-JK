@@ -33,6 +33,11 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	Camera = FindComponentByClass<UCameraComponent>();
+	HealthComponent = FindComponentByClass<UHealthComponent>();
+	if (HealthComponent)
+	{
+		HealthComponent->SetIsReplicated(true);
+	}
 }
 
 // Called every frame
