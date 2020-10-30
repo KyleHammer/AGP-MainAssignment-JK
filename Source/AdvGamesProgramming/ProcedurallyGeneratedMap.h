@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/BoxComponent.h"
 #include "ProceduralMeshComponent.h"
+#include "WallActor.h"
 #include "AIManager.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "ProcedurallyGeneratedMap.generated.h"
@@ -26,6 +28,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual bool ShouldTickIfViewportsOnly() const override;
+
+	UPROPERTY(VisibleAnywhere, Category="Wall Generation")
+	TArray<AWallActor*> MapWalls;
+
+	UPROPERTY(EditAnywhere, Category = "Wall Generation")
+	TSubclassOf<AWallActor> WallToSpawn;
+
+	UPROPERTY(EditAnywhere, Category="Wall Generation")
+	float WallHeight;
+
+	UPROPERTY(EditAnywhere, Category = "Wall Generation")
+	bool bGenerateWalls;
 
 	UPROPERTY(VisibleAnywhere)
 	UProceduralMeshComponent *MeshComponent;
@@ -64,6 +78,9 @@ public:
 	void GenerateMap();
 
 	void ClearMap();
+
+	void GenerateWalls();
+	void ClearWalls();
 
 	UPROPERTY(EditAnywhere)
 	bool bRegenerateMap;

@@ -2,6 +2,8 @@
 
 
 #include "ProcedurallyGeneratedMap.h"
+#include "UObject/ConstructorHelpers.h"
+#include "EngineUtils.h"
 
 // Sets default values
 AProcedurallyGeneratedMap::AProcedurallyGeneratedMap()
@@ -19,29 +21,7 @@ AProcedurallyGeneratedMap::AProcedurallyGeneratedMap()
 void AProcedurallyGeneratedMap::BeginPlay()
 {
 	Super::BeginPlay();
-	/*
-	TArray<FVector> Vertices;
-	Vertices.Add(FVector(0.0f, 0.0f, 0.0f));
-	Vertices.Add(FVector(0.0f, 100.0f, 0.0f));
-	Vertices.Add(FVector(100.0f, 100.0f, 0.0f));
-	Vertices.Add(FVector(100.0f, 0.0f, 0.0f));
-
-	TArray<int32> Triangles;
-	Triangles.Add(0);
-	Triangles.Add(1);
-	Triangles.Add(3);
-	Triangles.Add(3);
-	Triangles.Add(1);
-	Triangles.Add(2);
-
-	TArray<FVector2D> UVCoords;
-	UVCoords.Add(FVector2D(0.0f, 0.0f));
-	UVCoords.Add(FVector2D(0.0f, 1.0f));
-	UVCoords.Add(FVector2D(1.0f, 1.0f));
-	UVCoords.Add(FVector2D(1.0f, 0.0f));
-
-	MeshComponent->CreateMeshSection(0, Vertices, Triangles, TArray<FVector>(), UVCoords, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
-	*/
+	
 }
 
 // Called every frame
@@ -54,6 +34,13 @@ void AProcedurallyGeneratedMap::Tick(float DeltaTime)
 		ClearMap();
 		GenerateMap();
 		bRegenerateMap = false;
+	}
+
+	//This will generate walls that span on each edge of the map.
+	if(bGenerateWalls)
+	{
+		GenerateWalls();
+		bGenerateWalls = false;
 	}
 }
 
@@ -101,10 +88,50 @@ void AProcedurallyGeneratedMap::GenerateMap()
 	}
 }
 
+void AProcedurallyGeneratedMap::GenerateWalls()
+{
+	MapWalls.Empty(); //Empties list references
+
+	//Destroys existing instances of walls
+	for (TActorIterator<AWallActor> It(GetWorld()); It; ++It)
+	{
+		It->Destroy();
+	}
+
+	FVector SpawnPosition;
+	FVector SpawnScale = FVector(Width, 1, WallHeight);
+
+	//First Wall
+	SpawnPosition = FVector((Width * GridSize) / 2, 0 - (GridSize / 2), 0);
+	AWallActor *FirstWall = GetWorld()->SpawnActor<AWallActor>(WallToSpawn, SpawnPosition, FRotator(0.f, 0.f, 0.f));
+	FirstWall->SetLocalScale(SpawnScale);
+
+	//Second Wall
+	SpawnPosition = FVector((Width * GridSize) - (GridSize/2), (Width * GridSize) / 2, 0);
+	AWallActor *SecondWall = GetWorld()->SpawnActor<AWallActor>(WallToSpawn, SpawnPosition, FRotator(0.f, 90.f, 0.f));
+	SecondWall->SetLocalScale(SpawnScale);
+
+	//Third Wall
+	SpawnPosition = FVector((Width * GridSize) / 2, (Width * GridSize) - (GridSize / 2), 0);
+	AWallActor *ThirdWall = GetWorld()->SpawnActor<AWallActor>(WallToSpawn, SpawnPosition, FRotator(0.f, 0.f, 0.f));
+	ThirdWall->SetLocalScale(SpawnScale);
+
+	//Fourth Wall
+	SpawnPosition = FVector(0 - (GridSize / 2), (Width * GridSize) / 2, 0);
+	AWallActor *FourthWall = GetWorld()->SpawnActor<AWallActor>(WallToSpawn, SpawnPosition, FRotator(0.f, 90.f, 0.f));
+	FourthWall->SetLocalScale(SpawnScale);
+
+	MapWalls.Add(FirstWall);
+	MapWalls.Add(SecondWall);
+	MapWalls.Add(ThirdWall);
+	MapWalls.Add(FourthWall);
+}
+
 void AProcedurallyGeneratedMap::ClearMap()
 {
 	Vertices.Empty();
 	Triangles.Empty();
 	UVCoords.Empty();
+	MapWalls.Empty();
 	MeshComponent->ClearAllMeshSections();
 }
