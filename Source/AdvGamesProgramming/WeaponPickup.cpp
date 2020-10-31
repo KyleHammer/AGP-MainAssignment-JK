@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "WeaponPickup.h"
-#include "Kismet/KismetArrayLibrary.h"
 #include "Engine/Engine.h"
+#include "Kismet/KismetArrayLibrary.h"
+#include "WeaponPickup.h"
 #include "Net/UnrealNetwork.h"
 
 /**
@@ -16,6 +16,11 @@ void AWeaponPickup::OnGenerate()
 	//Find components for the abilities and shuffler algorithm
 	AbilityComponent = FindComponentByClass<UAbilityComponent>();
 	Shuffler = FindComponentByClass<URandArrayShuffler>();
+
+	if(GEngine && bPrintWeaponStats)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, TEXT("GENERATING WEAPON PICKUP"));
+	}
 
 	//Value that is used to determine the rarity value
 	int32 RandomRarityValue = FMath::RandRange(1, 100);
