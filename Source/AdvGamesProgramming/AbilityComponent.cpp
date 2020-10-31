@@ -7,6 +7,7 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "Net/UnrealNetwork.h"
 
 /**
 * Used to assign an ability level based on what's passed in from WeaponPickup
@@ -71,6 +72,7 @@ void UAbilityComponent::OnGenerate(WeaponPickupRarity Rarity, URandArrayShuffler
 	AbilityLevel = (RandBoolArray[0] ? FMath::RandRange(5, 10) : FMath::RandRange(1, 5));
 	ManaPool = (float)(RandBoolArray[1] ? FMath::RandRange(50, 100) : FMath::RandRange(10, 50));
 	AbilityPersistence = (RandBoolArray[2] ? FMath::RandRange(2.0f, 5.0f) : FMath::RandRange(0.3, 2.0f));
+	AbilityPersistence = 100.0f;
 	AbilityFireRate = (RandBoolArray[3] ? FMath::RandRange(0.05f, 0.25f) : FMath::RandRange(0.25f, 1.0f));
 
 	//If the weapon is powerless, make it unable to use it's ability
@@ -142,4 +144,18 @@ void UAbilityComponent::PrintAbilityStats()
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Purple, FString::Printf(TEXT("ABILITY TYPE: %s"), *AbilityString));
 	}
 }
+
+void UAbilityComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UAbilityComponent, CurrentAbilityType);
+	DOREPLIFETIME(UAbilityComponent, Temperature);
+	DOREPLIFETIME(UAbilityComponent, AbilityLevel);
+	DOREPLIFETIME(UAbilityComponent, ManaPool);
+	DOREPLIFETIME(UAbilityComponent, AbilityPersistence);
+	DOREPLIFETIME(UAbilityComponent, AbilityFireRate);
+}
+
+
 

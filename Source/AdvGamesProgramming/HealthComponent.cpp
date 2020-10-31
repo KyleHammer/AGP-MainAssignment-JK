@@ -2,6 +2,8 @@
 
 
 #include "HealthComponent.h"
+#include "Engine/GameEngine.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -10,7 +12,8 @@ UHealthComponent::UHealthComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	
-	// ...
+	MaxHealth = 100.0f;
+	
 }
 
 
@@ -30,7 +33,23 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	//Health Debug messages
+	
+	// if (GEngine && GetOwner()->GetLocalRole() == ROLE_AutonomousProxy)
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Current Health: %f"), CurrentHealth));
+	// 	FString::Printf(TEXT("Current Health: %f"), CurrentHealth);
+	// }
+	
+	//To update the health bar of the server player, calling UpdateHealthBar in the BeginPlay does not work. This is because when it is spa
+
+}
+
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UHealthComponent, CurrentHealth);
 }
 
 void UHealthComponent::OnTakeDamage(float Damage)

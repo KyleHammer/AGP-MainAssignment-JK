@@ -39,6 +39,8 @@ class ADVGAMESPROGRAMMING_API AWeaponPickup : public APickup
 	
     public:
 
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
     UFUNCTION(BlueprintCallable)
     void PrintWeaponStats();
     UFUNCTION(BlueprintImplementableEvent)
@@ -49,20 +51,20 @@ class ADVGAMESPROGRAMMING_API AWeaponPickup : public APickup
     UPROPERTY(EditAnywhere)
     bool bPrintWeaponStats;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
     WeaponPickupRarity Rarity;
 
     class UAbilityComponent* AbilityComponent;
     URandArrayShuffler* Shuffler;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
     float BulletDamage;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
     float MuzzleVelocity;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
     int32 MagazineSize;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
     float WeaponAccuracy;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
     float FireRate;
 };
