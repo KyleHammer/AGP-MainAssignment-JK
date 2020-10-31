@@ -17,11 +17,6 @@ void AWeaponPickup::OnGenerate()
 	AbilityComponent = FindComponentByClass<UAbilityComponent>();
 	Shuffler = FindComponentByClass<URandArrayShuffler>();
 
-	if(GEngine && bPrintWeaponStats)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::White, TEXT("GENERATING WEAPON PICKUP"));
-	}
-
 	//Value that is used to determine the rarity value
 	int32 RandomRarityValue = FMath::RandRange(1, 100);
 	//Will populate the RandBoolArray with a shuffled set of boolean values depending on the weapon rarity.
