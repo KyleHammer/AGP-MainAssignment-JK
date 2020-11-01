@@ -8,7 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "HealthComponent.h"
 #include "MultiplayerGameMode.h"
-//#include "PlayerHUD.h"
+#include "PlayerHUD.h"
 #include "Perception/AISense_Hearing.h"
 
 // Sets default values
@@ -77,18 +77,21 @@ void APlayerCharacter::Strafe(float Value)
 
 void APlayerCharacter::LookUp(float Value)
 {
-	FRotator DeltaRotation = FRotator::ZeroRotator;
-	DeltaRotation.Pitch = Value * LookSensitivity;
-	//Bonus Task - Removing Stutter by only adding relative rotation if it does not push pitch above or below 90 or -90 respectively
-	if (DeltaRotation.Pitch + Camera->RelativeRotation.Pitch < 90.0f && DeltaRotation.Pitch + Camera->RelativeRotation.Pitch > -90.0f)
+	if (Camera)
 	{
-		Camera->AddRelativeRotation(DeltaRotation);
+		FRotator DeltaRotation = FRotator::ZeroRotator;
+		DeltaRotation.Pitch = Value * LookSensitivity;
+		//Bonus Task - Removing Stutter by only adding relative rotation if it does not push pitch above or below 90 or -90 respectively
+		if (DeltaRotation.Pitch + Camera->RelativeRotation.Pitch < 90.0f && DeltaRotation.Pitch + Camera->RelativeRotation.Pitch > -90.0f)
+		{
+			Camera->AddRelativeRotation(DeltaRotation);
+		}
+		//Need to make sure that the camera is not rolling or yawing when the pitch is
+		//trying to pitch greater than 90 or less than -90. AddRelativeRotation starts
+		//adding things to roll and yaw at these extremes.
+		Camera->RelativeRotation.Yaw = 0.0f;
+		Camera->RelativeRotation.Roll = 0.0f;
 	}
-	//Need to make sure that the camera is not rolling or yawing when the pitch is
-	//trying to pitch greater than 90 or less than -90. AddRelativeRotation starts
-	//adding things to roll and yaw at these extremes.
-	Camera->RelativeRotation.Yaw = 0.0f;
-	Camera->RelativeRotation.Roll = 0.0f;
 }
 
 void APlayerCharacter::Turn(float Value)
@@ -106,6 +109,34 @@ void APlayerCharacter::SprintEnd()
 {
 	GetCharacterMovement()->MaxWalkSpeed = NormalMovementSpeed;
 	ServerSprintEnd();
+}
+
+void APlayerCharacter::OnDeath()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		AMultiplayerGameMode* GameMode = Cast<AMultiplayerGameMode>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->Respawn(GetController());
+		}
+	}
+}
+
+void APlayerCharacter::HidePlayerHUD_Implementation(bool bSetHUDVisibility)
+{
+	//Get the player controller then the player hud of the autonomous proxy
+	// CAN ALSO JUST CHECK FOR IsLocallyControlled()
+	if (GetLocalRole() == ROLE_AutonomousProxy || (GetLocalRole() == ROLE_Authority && IsLocallyControlled()))
+	{
+		if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+		{
+			if (APlayerHUD* HUD = Cast<APlayerHUD>(PlayerController->GetHUD()))
+			{
+				HUD->SetHideWidgets(bSetHUDVisibility);
+			}
+		}
+	}
 }
 
 void APlayerCharacter::ServerSprintStart_Implementation()
