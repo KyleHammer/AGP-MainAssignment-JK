@@ -40,6 +40,8 @@ public:
 
 	class UHealthComponent* HealthComponent;
 
+	void OnDeath();
+
 	/**
 	 * Will adjust the movement speed of the server character to sprinting
 	 */
@@ -51,6 +53,13 @@ public:
 	 */
 	UFUNCTION(Server, Reliable)
 	void ServerSprintEnd();
+
+	/**
+	* Client function that will hide or show the hud.
+	* @param bSetHudVisibility: Whether the hud should be hidden or shown.
+	*/
+	UFUNCTION(Client, Reliable)
+    void HidePlayerHUD(bool bSetHUDVisibility);
 
 private:
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin="0.0", ClampMax="2.0", UIMin ="0.0", UIMax="2.0"))
