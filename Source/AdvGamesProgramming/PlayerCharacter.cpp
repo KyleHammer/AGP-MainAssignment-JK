@@ -5,6 +5,10 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
+#include "Net/UnrealNetwork.h"
+#include "HealthComponent.h"
+#include "MultiplayerGameMode.h"
+//#include "PlayerHUD.h"
 #include "Perception/AISense_Hearing.h"
 
 // Sets default values
@@ -17,6 +21,10 @@ APlayerCharacter::APlayerCharacter()
 
 	LookSensitivity = 1.0f;
 	SprintMultiplier = 1.5f;
+
+	//Set the normal and sprint movement speeds
+	NormalMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	SprintMovementSpeed = GetCharacterMovement()->MaxWalkSpeed * SprintMultiplier;
 }
 
 // Called when the game starts or when spawned
@@ -25,6 +33,11 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	Camera = FindComponentByClass<UCameraComponent>();
+	HealthComponent = FindComponentByClass<UHealthComponent>();
+	if (HealthComponent)
+	{
+		HealthComponent->SetIsReplicated(true);
+	}
 }
 
 // Called every frame
@@ -85,11 +98,23 @@ void APlayerCharacter::Turn(float Value)
 
 void APlayerCharacter::SprintStart()
 {
-	GetCharacterMovement()->MaxWalkSpeed *= SprintMultiplier;
+	GetCharacterMovement()->MaxWalkSpeed = SprintMovementSpeed;
+	ServerSprintStart();
 }
 
 void APlayerCharacter::SprintEnd()
 {
-	GetCharacterMovement()->MaxWalkSpeed /= SprintMultiplier;
+	GetCharacterMovement()->MaxWalkSpeed = NormalMovementSpeed;
+	ServerSprintEnd();
+}
+
+void APlayerCharacter::ServerSprintStart_Implementation()
+{
+	GetCharacterMovement()->MaxWalkSpeed = SprintMovementSpeed;
+}
+
+void APlayerCharacter::ServerSprintEnd_Implementation()
+{
+	GetCharacterMovement()->MaxWalkSpeed = NormalMovementSpeed;
 }
 

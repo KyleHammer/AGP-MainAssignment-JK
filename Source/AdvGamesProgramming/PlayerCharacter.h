@@ -20,6 +20,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	float NormalMovementSpeed;
+	float SprintMovementSpeed;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -34,6 +37,20 @@ public:
 
 	void SprintStart();
 	void SprintEnd();
+
+	class UHealthComponent* HealthComponent;
+
+	/**
+	 * Will adjust the movement speed of the server character to sprinting
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerSprintStart();
+
+	/**
+	 * Will adjust the movement speed of the server character to normal walking speed
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerSprintEnd();
 
 private:
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin="0.0", ClampMax="2.0", UIMin ="0.0", UIMax="2.0"))
