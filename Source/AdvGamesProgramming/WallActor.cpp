@@ -32,7 +32,7 @@ void AWallActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
+	
 }
 
 // Called every frame

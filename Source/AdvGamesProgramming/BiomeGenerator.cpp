@@ -6,6 +6,14 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 
+// ---------------------------------------
+// 	GENERATING MAPS:
+//	1. Generate the procedural map first (IN THE 'ProcedurallyGeneratedMap' class)
+//	2. Generate the biome map second
+//  3. Generate the AI nodes last
+//
+// ---------------------------------------
+
 // Sets default values
 ABiomeGenerator::ABiomeGenerator()
 {
