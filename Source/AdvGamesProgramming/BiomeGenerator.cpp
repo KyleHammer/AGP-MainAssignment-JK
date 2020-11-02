@@ -20,6 +20,10 @@ ABiomeGenerator::ABiomeGenerator()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	NoiseThreshold = 100;
+	PerlinScale = 600;
+	PerlinRoughness = 2.0;
+
 	MaxAltitude = 200;
 	NoisePowerValue = 2;
 	SeaLevel = -10;
@@ -268,6 +272,7 @@ void ABiomeGenerator::ClearMaps()
 {
 	SpawnedTerrainFoliage.Empty();
 	SpawnedPrimitives.Empty();
+	ValidAvailablePositions.Empty();
 }
 
 void ABiomeGenerator::ClearOverlayNoise()

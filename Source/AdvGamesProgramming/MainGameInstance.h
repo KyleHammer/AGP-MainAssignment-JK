@@ -27,9 +27,9 @@ class ADVGAMESPROGRAMMING_API UMainGameInstance : public UGameInstance
 	void CreateSession(FName SessionName);
 	void DestroySession(FName SessionName);
 	void FindSession();
-	void JoinSession();
+	virtual void JoinSession();
 
-	private:
+private:
 	TSubclassOf<class UUserWidget> MainMenuWidgetClass;
 	class UMainMenuWidget* Menu;
 
