@@ -32,6 +32,14 @@ class ADVGAMESPROGRAMMING_API APlayerHUD : public AHUD
     void SetAmmoText(int32 RoundsRemaining, int32 MagazineSize);
 
 	/**
+	* Will set the mana text block to reflect the amount of mana left in the gun
+	* @param ManaRemaining: The remaining mana in the gun
+	* @param ManaPoolSize: The max capacity for the gun's mana
+	*/
+	UFUNCTION(BlueprintCallable)
+    void SetManaText(float ManaRemaining, float ManaPoolSize);
+
+	/**
 	* Hides or shows the widgets in the hud.
 	* @param bIsHidden: Whether the widgets should be hidden (true) or shown (false)
 	*/
@@ -43,5 +51,14 @@ class ADVGAMESPROGRAMMING_API APlayerHUD : public AHUD
 	UUserWidget* CurrentPlayerHUDWidget;
 	class UProgressBar* HealthProgressBar;
 	class UTextBlock* AmmoTextBlock;
+	class UTextBlock* ManaTextBlock;
 	class UImage* CrosshairImageBlock;
+	
+	class UTextBlock* RarityTextBlock;
+	class UTextBlock* BulletDamageTextBlock;
+	class UTextBlock* WeaponAccuracyTextBlock;
+	
+	class UTextBlock* CurrentAbilityTypeTextBlock;
+	class UTextBlock* AbilityLevelTextBlock;
+	class UTextBlock* AbilityPersistenceTextBlock;
 };
