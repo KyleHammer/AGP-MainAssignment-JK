@@ -8,7 +8,6 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "PlayerCharacter.h"
-#include "Engine/Engine.h"
 
 APlayerHUD::APlayerHUD()
 {
@@ -29,24 +28,6 @@ APlayerHUD::APlayerHUD()
 			HealthProgressBar = Cast<UProgressBar>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("ProgHealthBar")));
 			AmmoTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextAmmo")));
 			CrosshairImageBlock = Cast<UImage>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("ImgCrosshair")));
-			if(GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Green, FString::Printf(TEXT("Success")));
-			}
-		}
-		else
-		{
-			if(GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Red, FString::Printf(TEXT("Failiure")));
-			}
-		}
-	}
-	else
-	{
-		if(GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Red, FString::Printf(TEXT("Failiure2")));
 		}
 	}
 }
