@@ -79,6 +79,7 @@ void AMultiplayerGameMode::TriggerRespawn(AController* Controller)
 				{
 					UE_LOG(LogTemp, Display, TEXT("Showing the HUD"));
 					Character->HidePlayerHUD(false);
+			
 				}
 			}
 		}
