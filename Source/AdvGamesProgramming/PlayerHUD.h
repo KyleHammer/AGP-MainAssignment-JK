@@ -67,4 +67,6 @@ class ADVGAMESPROGRAMMING_API APlayerHUD : public AHUD
 	class UTextBlock* CurrentAbilityTypeTextBlock;
 	class UTextBlock* AbilityLevelTextBlock;
 	class UTextBlock* AbilityPersistenceTextBlock;
+
+	class UTextBlock* KillCountTextBlock;
 };

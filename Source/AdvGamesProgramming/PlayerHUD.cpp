@@ -37,6 +37,8 @@ APlayerHUD::APlayerHUD()
 			CurrentAbilityTypeTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextCurrentAbilityType")));
 			AbilityLevelTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextAbilityLevel")));
 			AbilityPersistenceTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextAbilityPersistence")));
+
+			KillCountTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextKillCount")));
 		}
 	}
 }
