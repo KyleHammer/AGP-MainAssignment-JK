@@ -98,7 +98,7 @@ void UMainGameInstance::FindSession()
 	}
 }
 
-void UMainGameInstance::JoinSession()
+bool UMainGameInstance::JoinSession(ULocalPlayer *LocalPlayer, const FOnlineSessionSearchResult &SearchResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Joining Session"));
 	if (SessionInterface.IsValid() && SessionSearch.IsValid())
@@ -108,7 +108,11 @@ void UMainGameInstance::JoinSession()
 		{
 			SessionInterface->JoinSession(0, TEXT("Test Session"), SessionSearch->SearchResults[0]);
 		}
+
+		return true;
 	}
+
+	return false;
 }
 
 void UMainGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
@@ -148,12 +152,18 @@ void UMainGameInstance::OnFindSessionComplete(bool bSuccess)
 	{
 		
 		TArray<FOnlineSessionSearchResult> SearchResults = SessionSearch->SearchResults;
+		FOnlineSessionSearchResult ResultSearch;
+
 		UE_LOG(LogTemp, Warning, TEXT("Found %i Sessions"), SearchResults.Num())
 		for (const FOnlineSessionSearchResult& SearchResult : SearchResults)
 		{
+			ResultSearch = SearchResult;
 			UE_LOG(LogTemp, Warning, TEXT("Found Session: %s"), *SearchResult.GetSessionIdStr())
 		}
-		JoinSession();
+		
+		APlayerController *PlayerController = GetFirstLocalPlayerController();
+
+		JoinSession(PlayerController->GetLocalPlayer(), ResultSearch);
 	}
 	else
 	{

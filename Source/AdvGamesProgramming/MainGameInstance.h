@@ -27,7 +27,7 @@ class ADVGAMESPROGRAMMING_API UMainGameInstance : public UGameInstance
 	void CreateSession(FName SessionName);
 	void DestroySession(FName SessionName);
 	void FindSession();
-	virtual void JoinSession();
+	bool JoinSession(ULocalPlayer *LocalPlayer, const FOnlineSessionSearchResult &SearchResult);
 
 private:
 	TSubclassOf<class UUserWidget> MainMenuWidgetClass;
