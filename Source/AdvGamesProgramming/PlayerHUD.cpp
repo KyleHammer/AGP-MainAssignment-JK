@@ -30,7 +30,7 @@ APlayerHUD::APlayerHUD()
 			ManaTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextMana")));
 			CrosshairImageBlock = Cast<UImage>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("ImgCrosshair")));
 			
-			RarityTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextRarity")));
+			FireRateTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextFireRate")));
 			BulletDamageTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextBulletDamage")));
 			WeaponAccuracyTextBlock = Cast<UTextBlock>(CurrentPlayerHUDWidget->GetWidgetFromName(TEXT("TextWeaponAccuracy")));
 	
@@ -64,6 +64,35 @@ void APlayerHUD::SetManaText(float ManaRemaining, float ManaPoolSize)
 	}
 }
 
+void APlayerHUD::SetWeaponStatsText(float FireRate, float AbilityFireRate, float BulletDamage, float WeaponAccuracy, FString AbilityType, int32 AbilityLevel, float AbilityPersistence)
+{
+	if (FireRateTextBlock)
+	{
+		FireRateTextBlock->SetText(FText::FromString(FString::Printf(TEXT("Gun FR: %.02f || Ability FR: %.02f"), FireRate, AbilityFireRate)));
+	}
+	if (BulletDamageTextBlock)
+	{
+		BulletDamageTextBlock->SetText(FText::FromString(FString::Printf(TEXT("DMG: %.02f"), BulletDamage)));
+	}
+	if (WeaponAccuracyTextBlock)
+	{
+		WeaponAccuracyTextBlock->SetText(FText::FromString(FString::Printf(TEXT("ACC: %.02f"), WeaponAccuracy)));
+	}
+	
+	if (CurrentAbilityTypeTextBlock)
+	{
+		CurrentAbilityTypeTextBlock->SetText(FText::FromString(FString::Printf(TEXT("Ability: %s"), *AbilityType)));
+	}
+	if (AbilityLevelTextBlock)
+	{
+		AbilityLevelTextBlock->SetText(FText::FromString(FString::Printf(TEXT("Magic Level: %i"), AbilityLevel)));
+	}
+	if (AbilityPersistenceTextBlock)
+	{
+		AbilityPersistenceTextBlock->SetText(FText::FromString(FString::Printf(TEXT("Persistence: %.02f"), AbilityPersistence)));
+	}
+}
+
 void APlayerHUD::SetHideWidgets(bool bIsHidden)
 {
 	if (bIsHidden)
@@ -77,8 +106,8 @@ void APlayerHUD::SetHideWidgets(bool bIsHidden)
 		if (CrosshairImageBlock)
 			CrosshairImageBlock->SetVisibility(ESlateVisibility::Hidden);
 		
-		if (RarityTextBlock)
-			RarityTextBlock->SetVisibility(ESlateVisibility::Hidden);
+		if (FireRateTextBlock)
+			FireRateTextBlock->SetVisibility(ESlateVisibility::Hidden);
 		if (BulletDamageTextBlock)
 			BulletDamageTextBlock->SetVisibility(ESlateVisibility::Hidden);
 		if (WeaponAccuracyTextBlock)
@@ -109,8 +138,8 @@ void APlayerHUD::SetHideWidgets(bool bIsHidden)
 		if (CrosshairImageBlock)
 			CrosshairImageBlock->SetVisibility(ESlateVisibility::Visible);
 
-		if (RarityTextBlock)
-			RarityTextBlock->SetVisibility(ESlateVisibility::Visible);
+		if (FireRateTextBlock)
+			FireRateTextBlock->SetVisibility(ESlateVisibility::Visible);
 		if (BulletDamageTextBlock)
 			BulletDamageTextBlock->SetVisibility(ESlateVisibility::Visible);
 		if (WeaponAccuracyTextBlock)

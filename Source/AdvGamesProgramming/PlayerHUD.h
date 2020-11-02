@@ -38,6 +38,12 @@ class ADVGAMESPROGRAMMING_API APlayerHUD : public AHUD
 	*/
 	UFUNCTION(BlueprintCallable)
     void SetManaText(float ManaRemaining, float ManaPoolSize);
+	
+	/**
+	* Will set all of the remaining weapon stats for the HUD (Rarity, bullet damage, ability type, ability level and ability persistence)
+	*/
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponStatsText(float FireRate, float AbilityFireRate, float BulletDamage, float WeaponAccuracy, FString AbilityType, int32 AbilityLevel, float AbilityPersistence);
 
 	/**
 	* Hides or shows the widgets in the hud.
@@ -54,7 +60,7 @@ class ADVGAMESPROGRAMMING_API APlayerHUD : public AHUD
 	class UTextBlock* ManaTextBlock;
 	class UImage* CrosshairImageBlock;
 	
-	class UTextBlock* RarityTextBlock;
+	class UTextBlock* FireRateTextBlock;
 	class UTextBlock* BulletDamageTextBlock;
 	class UTextBlock* WeaponAccuracyTextBlock;
 	
